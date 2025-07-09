@@ -33,6 +33,17 @@ class WeakTreeNode(Generic[T]):
         # Dereference our value so the real object can be used.
         return self._value()
 
+    def add_branch(self, value: T) -> WeakTreeNode[T]:
+        """
+        Creates a new node as a child of the current node, with the value of _value_
+
+        :param value: The value to be stored by the new WeakTreeNode
+        :return: The newly created node.
+        """
+        node = WeakTreeNode(value, self)
+        self._branches.add(node)
+        return node
+
     def breadth(self) -> Generator[WeakTreeNode]:
         """
         Provides a generator that performs a breadth-first traversal of the tree
