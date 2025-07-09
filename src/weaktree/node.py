@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import deque
+from collections.abc import Generator
 from typing import Generic, TypeVar
 from weakref import ref
 
@@ -30,3 +32,12 @@ class WeakTreeNode(Generic[T]):
     def value(self) -> T | None:
         # Dereference our value so the real object can be used.
         return self._value()
+
+    def breadth(self) -> Generator[WeakTreeNode]:
+        queue: deque[WeakTreeNode] = deque([self])
+        while queue:
+            node = queue.popleft()
+            print(type(node))
+            yield node
+
+            queue.extend(node.branches)
