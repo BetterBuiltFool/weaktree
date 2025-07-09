@@ -41,3 +41,12 @@ class WeakTreeNode(Generic[T]):
             yield node
 
             queue.extend(node.branches)
+
+    def depth(self) -> Generator[WeakTreeNode]:
+        stack: list[WeakTreeNode] = [self]
+        while stack:
+            node = stack.pop()
+            print(type(node))
+            yield node
+
+            stack.extend(node.branches)
