@@ -44,22 +44,21 @@ class WeakTreeNode(Generic[T]):
         self._branches.add(node)
         return node
 
-    def breadth(self) -> Generator[WeakTreeNode]:
+    def breadth(self) -> Generator[WeakTreeNode[T]]:
         """
         Provides a generator that performs a breadth-first traversal of the tree
         starting at the current node.
 
         :yield: The next node in the tree, breadth-first.
         """
-        queue: deque[WeakTreeNode] = deque([self])
+        queue: deque[WeakTreeNode[T]] = deque([self])
         while queue:
             node = queue.popleft()
-            print(type(node))
             yield node
 
             queue.extend(node.branches)
 
-    def depth(self) -> Generator[WeakTreeNode]:
+    def depth(self) -> Generator[WeakTreeNode[T]]:
         """
         Provides a generator that performs a depth-first traversal of the tree
         starting at the current node.
@@ -69,12 +68,11 @@ class WeakTreeNode(Generic[T]):
         stack: list[WeakTreeNode] = [self]
         while stack:
             node = stack.pop()
-            print(type(node))
             yield node
 
             stack.extend(node.branches)
 
-    def __iter__(self) -> Generator[WeakTreeNode]:
+    def __iter__(self) -> Generator[WeakTreeNode[T]]:
         """
         Default iteration method, in this case, breadth-first.
 
