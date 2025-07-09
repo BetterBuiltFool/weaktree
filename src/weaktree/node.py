@@ -50,3 +50,6 @@ class WeakTreeNode(Generic[T]):
             yield node
 
             stack.extend(node.branches)
+
+    def __iter__(self) -> Generator[WeakTreeNode]:
+        yield from self.breadth()
