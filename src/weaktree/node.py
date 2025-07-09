@@ -13,7 +13,8 @@ class WeakTreeNode(Generic[T]):
 
     def __init__(self, value: T, root: WeakTreeNode | None = None) -> None:
         self._value = ref(value)
-        self._root = root
+        self._root: WeakTreeNode[T] | None = root
+        self.root = root
         self._branches: set[WeakTreeNode] = set()
 
     @property
@@ -25,7 +26,11 @@ class WeakTreeNode(Generic[T]):
         return self._root
 
     @root.setter
-    def root(self, node: WeakTreeNode):
+    def root(self, node: WeakTreeNode | None):
+        if node:
+            node.branches.add(self)
+            if self._root:
+                self._root.branches.discard(self)
         self._root = node
 
     @property
@@ -41,7 +46,6 @@ class WeakTreeNode(Generic[T]):
         :return: The newly created node.
         """
         node = WeakTreeNode(value, self)
-        self._branches.add(node)
         return node
 
     def breadth(self) -> Generator[WeakTreeNode[T]]:
