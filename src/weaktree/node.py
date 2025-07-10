@@ -29,7 +29,7 @@ class WeakTreeNode(Generic[T]):
                 self._cleanup()
 
         self._value = ref(value, _remove)
-        self._root: WeakTreeNode[T] | None = None
+        self._root: ref[WeakTreeNode[T]] | None = None
         self.root = root
         self._branches: set[WeakTreeNode] = set()
         self._cleanup_mode = cleanup_mode
@@ -40,15 +40,19 @@ class WeakTreeNode(Generic[T]):
 
     @property
     def root(self) -> WeakTreeNode | None:
-        return self._root
+        if self._root:
+            return self._root()
+        return None
 
     @root.setter
     def root(self, node: WeakTreeNode | None):
-        if self._root:
-            self._root._branches.discard(self)
-        self._root = node
+        if self.root:
+            self.root._branches.discard(self)
         if node:
+            self._root = ref(node)
             node._branches.add(self)
+        else:
+            self._root = None
 
     @property
     def value(self) -> T | None:
