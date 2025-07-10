@@ -71,6 +71,27 @@ class TestNode(unittest.TestCase):
             with self.subTest(i=i):
                 self.assertIn(node.value, expected[i])
 
+    def test_depth_iterator(self):
+
+        stack = []
+
+        for i, node in enumerate(self.root.depth()):
+            with self.subTest(i=i):
+                # Determine if our node is top level, or a decendant of one in the stack
+                no_root = node.root is None
+                stack_root = node.root in stack
+
+                self.assertTrue(no_root or stack_root)
+
+                if stack_root:
+                    # For a descendant, remove the chain until we get to the node's
+                    # parent. If we end up out of order, this is what will cause our
+                    # test to fail
+                    while stack[-1] is not node.root:
+                        stack.pop()
+
+                stack.append(node)
+
 
 if __name__ == "__main__":
     unittest.main()
