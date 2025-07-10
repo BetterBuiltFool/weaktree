@@ -83,3 +83,6 @@ class WeakTreeNode(Generic[T]):
         :yield: The next node in the tree, breadth-first.
         """
         yield from self.breadth()
+
+    def __repr__(self) -> str:
+        return f"WeakTreeNode({self.value})"
