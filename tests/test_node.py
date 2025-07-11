@@ -35,18 +35,25 @@ class TestNode(unittest.TestCase):
         self.test_data = test_data
 
         self.root = WeakTreeNode(test_data["root"])
+
         branch1 = self.root.add_branch(test_data["1"])
-        branch2 = self.root.add_branch(test_data["2"])
-        branch3 = self.root.add_branch(test_data["3"])
 
         branch4 = branch1.add_branch(test_data["4"])
-        branch1.add_branch(test_data["5"])
-
-        branch2.add_branch(test_data["6"])
-        branch3.add_branch(test_data["7"])
-
         branch8 = branch4.add_branch(test_data["8"])
         branch8.add_branch(test_data["9"])
+
+        branch1.add_branch(test_data["5"])
+
+        branch2 = self.root.add_branch(test_data["2"])
+        branch2.add_branch(test_data["6"])
+
+        branch3 = self.root.add_branch(test_data["3"])
+        branch3.add_branch(test_data["7"])
+
+        # Note: These excess vars all descope after setup, so we don't have to worry
+        # about excess references.
+        # We could also do this by chaining add_branch, but that actually becomes
+        # _less_ readable.
 
     def test_breadth_iterator(self):
         test_data = self.test_data
