@@ -7,7 +7,6 @@ from typing import ClassVar, Generic, TypeVar
 from weakref import ref
 
 T = TypeVar("T")
-RootT = TypeVar("RootT")
 
 
 class WeakTreeNode(Generic[T]):
@@ -38,17 +37,17 @@ class WeakTreeNode(Generic[T]):
                 self._cleanup()
 
         self._value = ref(value, _remove)
-        self._root: ref[WeakTreeNode] | None = None
+        self._root: ref[WeakTreeNode[T]] | None = None
         self.root = root
-        self._branches: set[WeakTreeNode] = set()
+        self._branches: set[WeakTreeNode[T]] = set()
         self._cleanup_mode = cleanup_mode
 
     @property
-    def branches(self) -> set[WeakTreeNode]:
+    def branches(self) -> set[WeakTreeNode[T]]:
         return self._branches
 
     @property
-    def root(self) -> WeakTreeNode | None:
+    def root(self) -> WeakTreeNode[T] | None:
         if self._root:
             return self._root()
         return None
@@ -70,10 +69,10 @@ class WeakTreeNode(Generic[T]):
 
     def add_branch(
         self,
-        value: RootT,
+        value: T,
         callback: Callable | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
-    ) -> WeakTreeNode[RootT]:
+    ) -> WeakTreeNode[T]:
         """
         Creates a new node as a child of the current node, with a weak reference to the
         passed value.
@@ -111,21 +110,21 @@ class WeakTreeNode(Generic[T]):
 
         :yield: The next node in the tree, depth-first.
         """
-        stack: list[WeakTreeNode] = [self]
+        stack: list[WeakTreeNode[T]] = [self]
         while stack:
             node = stack.pop()
             yield node
 
             stack.extend(node.branches)
 
-    def to_root(self) -> Generator[WeakTreeNode]:
+    def to_root(self) -> Generator[WeakTreeNode[T]]:
         """
         Provides a generator that traces the tree back to the furthest root.
 
         :yield: The root node of the previous node.
         """
 
-        node: WeakTreeNode | None = self
+        node: WeakTreeNode[T] | None = self
         while node:
             yield node
 
@@ -150,7 +149,7 @@ class WeakTreeNode(Generic[T]):
                 return self.root._get_cleanup_method(self.root._cleanup_mode)
 
     @staticmethod
-    def prune(node: WeakTreeNode):
+    def prune(node: WeakTreeNode[T]):
         """
         Removes a node and all of its descendants.
         """
@@ -163,7 +162,7 @@ class WeakTreeNode(Generic[T]):
         node._branches.clear()
 
     @staticmethod
-    def reparent(node: WeakTreeNode):
+    def reparent(node: WeakTreeNode[T]):
         """
         Shifts a node's branches into the node's root.
         """
@@ -174,7 +173,7 @@ class WeakTreeNode(Generic[T]):
             subnode.root = node.root
 
     @staticmethod
-    def _idle(node: WeakTreeNode):
+    def _idle(node: WeakTreeNode[T]):
         # Intentionally do nothing.
         pass
 
