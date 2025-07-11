@@ -118,6 +118,19 @@ class WeakTreeNode(Generic[T]):
 
             stack.extend(node.branches)
 
+    def to_root(self) -> Generator[WeakTreeNode]:
+        """
+        Provides a generator that traces the tree back to the furthest root.
+
+        :yield: The root node of the previous node.
+        """
+
+        node: WeakTreeNode | None = self
+        while node:
+            yield node
+
+            node = node.root
+
     def _cleanup(self):
         self._get_cleanup_method(self._cleanup_mode)(self)
 
