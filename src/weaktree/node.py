@@ -193,14 +193,20 @@ class WeakTreeNode(Generic[T]):
 
 class TreeIterable(ABC, Generic[IterT]):
 
-    def __init__(self, root: WeakTreeNode[T]) -> None:
-        self._root_node = root
+    def __init__(self, starting_node: WeakTreeNode[T]) -> None:
+        self._root_node = starting_node
 
     @abstractmethod
     def _get_iter_output(self, node: WeakTreeNode) -> IterT:
         pass
 
     def breadth(self) -> Iterator[IterT]:
+        """
+        Provides a generator that performs a breadth-first traversal of the tree
+        starting at the root node of the iterable.
+
+        Order is not guaranteed.
+        """
         queue: deque[WeakTreeNode] = deque([self._root_node])
         while queue:
             node = queue.popleft()
@@ -209,6 +215,12 @@ class TreeIterable(ABC, Generic[IterT]):
             queue.extend(node.branches)
 
     def depth(self) -> Iterator[IterT]:
+        """
+        Provides a generator that performs a depth-first traversal of the tree,
+        starting from the root node of the iterable.
+
+        Order is not guaranteed.
+        """
         stack: list[WeakTreeNode] = [self._root_node]
         while stack:
             node = stack.pop()
@@ -221,18 +233,30 @@ class TreeIterable(ABC, Generic[IterT]):
 
 
 class NodeIterable(TreeIterable[WeakTreeNode]):
+    """
+    Variant of TreeIterator that provides the nodes of the tree themselves when
+    iterated over.
+    """
 
     def _get_iter_output(self, node: WeakTreeNode[T]) -> WeakTreeNode[T]:
         return node
 
 
 class ValueIterable(TreeIterable[T | None]):
+    """
+    Variant of TreeIterator that provides the values of the nodes of the tree when
+    iterated over.
+    """
 
     def _get_iter_output(self, node: WeakTreeNode[T]) -> T | None:
         return node.value
 
 
 class ItemsIterable(TreeIterable[tuple[WeakTreeNode, T | None]]):
+    """
+    Variant of TreeIterable that provides pairs of nodes with their values when
+    iterated over.
+    """
 
     def _get_iter_output(self, node: WeakTreeNode) -> tuple[WeakTreeNode, T | None]:
         return node, node.value
