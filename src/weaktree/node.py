@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Callable, Generator
+from enum import auto, Enum
 from typing import ClassVar, Generic, TypeVar
 from weakref import ref
 
@@ -9,17 +10,24 @@ T = TypeVar("T")
 
 
 class WeakTreeNode(Generic[T]):
-    PRUNE: ClassVar[int] = 0
-    REPARENT: ClassVar[int] = 1
-    DEFAULT: ClassVar[int] = 2
-    NO_CLEANUP: ClassVar[int] = 3
+
+    class CleanupMode(Enum):
+        DEFAULT = auto()
+        PRUNE = auto()
+        REPARENT = auto()
+        NO_CLEANUP = auto()
+
+    DEFAULT: ClassVar[CleanupMode] = CleanupMode.DEFAULT
+    PRUNE: ClassVar[CleanupMode] = CleanupMode.PRUNE
+    REPARENT: ClassVar[CleanupMode] = CleanupMode.REPARENT
+    NO_CLEANUP: ClassVar[CleanupMode] = CleanupMode.NO_CLEANUP
 
     def __init__(
         self,
         value: T,
         root: WeakTreeNode | None = None,
         callback: Callable | None = None,
-        cleanup_mode: int = DEFAULT,
+        cleanup_mode: CleanupMode = DEFAULT,
     ) -> None:
         def _remove(wr: ref, selfref=ref(self)):
             self = selfref()
@@ -60,7 +68,10 @@ class WeakTreeNode(Generic[T]):
         return self._value()
 
     def add_branch(
-        self, value: T, callback: Callable | None = None, cleanup_mode: int = DEFAULT
+        self,
+        value: T,
+        callback: Callable | None = None,
+        cleanup_mode: CleanupMode = DEFAULT,
     ) -> WeakTreeNode[T]:
         """
         Creates a new node as a child of the current node, with a weak reference to the
@@ -109,7 +120,7 @@ class WeakTreeNode(Generic[T]):
     def _cleanup(self):
         self._get_cleanup_method(self._cleanup_mode)(self)
 
-    def _get_cleanup_method(self, cleanup_method: int) -> Callable:
+    def _get_cleanup_method(self, cleanup_method: CleanupMode) -> Callable:
         match cleanup_method:
             case self.PRUNE:
                 return WeakTreeNode.prune
