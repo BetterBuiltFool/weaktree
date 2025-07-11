@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections import deque
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Iterator
 from enum import auto, Enum
 from typing import ClassVar, Generic, TypeVar
 from weakref import ref
 
 T = TypeVar("T")
+IterT = TypeVar("IterT")
 
 
 class WeakTreeNode(Generic[T]):
@@ -187,3 +189,32 @@ class WeakTreeNode(Generic[T]):
 
     def __repr__(self) -> str:
         return f"WeakTreeNode({self.value})"
+
+
+class TreeIterable(ABC, Generic[IterT]):
+
+    def __init__(self, root: WeakTreeNode[T]) -> None:
+        self._root_node = root
+
+    @abstractmethod
+    def _get_iter_output(self, node: WeakTreeNode[T]) -> IterT:
+        pass
+
+    def breadth(self) -> Iterator[IterT]:
+        queue: deque[WeakTreeNode] = deque([self._root_node])
+        while queue:
+            node = queue.popleft()
+            yield self._get_iter_output(node)
+
+            queue.extend(node.branches)
+
+    def depth(self) -> Iterator[IterT]:
+        stack: list[WeakTreeNode] = [self._root_node]
+        while stack:
+            node = stack.pop()
+            yield self._get_iter_output(node)
+
+            stack.extend(node.branches)
+
+    def __iter__(self) -> Iterator[IterT]:
+        yield from self.breadth()
