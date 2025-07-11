@@ -197,7 +197,7 @@ class TreeIterable(ABC, Generic[IterT]):
         self._root_node = root
 
     @abstractmethod
-    def _get_iter_output(self, node: WeakTreeNode[T]) -> IterT:
+    def _get_iter_output(self, node: WeakTreeNode) -> IterT:
         pass
 
     def breadth(self) -> Iterator[IterT]:
@@ -218,3 +218,21 @@ class TreeIterable(ABC, Generic[IterT]):
 
     def __iter__(self) -> Iterator[IterT]:
         yield from self.breadth()
+
+
+class NodeIterable(TreeIterable[WeakTreeNode]):
+
+    def _get_iter_output(self, node: WeakTreeNode[T]) -> WeakTreeNode[T]:
+        return node
+
+
+class ValueIterable(TreeIterable[T | None]):
+
+    def _get_iter_output(self, node: WeakTreeNode[T]) -> T | None:
+        return node.value
+
+
+class ItemsIterable(TreeIterable[tuple[WeakTreeNode, T | None]]):
+
+    def _get_iter_output(self, node: WeakTreeNode) -> tuple[WeakTreeNode, T | None]:
+        return node, node.value
