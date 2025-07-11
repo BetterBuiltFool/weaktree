@@ -7,6 +7,7 @@ from typing import ClassVar, Generic, TypeVar
 from weakref import ref
 
 T = TypeVar("T")
+RootT = TypeVar("RootT")
 
 
 class WeakTreeNode(Generic[T]):
@@ -37,7 +38,7 @@ class WeakTreeNode(Generic[T]):
                 self._cleanup()
 
         self._value = ref(value, _remove)
-        self._root: ref[WeakTreeNode[T]] | None = None
+        self._root: ref[WeakTreeNode] | None = None
         self.root = root
         self._branches: set[WeakTreeNode] = set()
         self._cleanup_mode = cleanup_mode
@@ -69,10 +70,10 @@ class WeakTreeNode(Generic[T]):
 
     def add_branch(
         self,
-        value: T,
+        value: RootT,
         callback: Callable | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
-    ) -> WeakTreeNode[T]:
+    ) -> WeakTreeNode[RootT]:
         """
         Creates a new node as a child of the current node, with a weak reference to the
         passed value.
