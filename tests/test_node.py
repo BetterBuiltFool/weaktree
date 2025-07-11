@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from collections import deque
 import pathlib
 import sys
 import unittest
@@ -56,27 +58,20 @@ class TestNode(unittest.TestCase):
         # _less_ readable.
 
     def test_breadth_iterator(self):
-        test_data = self.test_data
-        expected = {
-            0: {test_data["root"]},
-            # Layer 1: Children of root
-            1: {test_data["1"], test_data["2"], test_data["3"]},
-            2: {test_data["1"], test_data["2"], test_data["3"]},
-            3: {test_data["1"], test_data["2"], test_data["3"]},
-            # Layer 2: Grandchildren of root
-            4: {test_data["4"], test_data["5"], test_data["6"], test_data["7"]},
-            5: {test_data["4"], test_data["5"], test_data["6"], test_data["7"]},
-            6: {test_data["4"], test_data["5"], test_data["6"], test_data["7"]},
-            7: {test_data["4"], test_data["5"], test_data["6"], test_data["7"]},
-            # Layer 3:
-            8: {test_data["8"]},
-            # Layer 4:
-            9: {test_data["9"]},
-        }
 
-        for i, node in enumerate(self.root.breadth()):
-            with self.subTest(i=i):
-                self.assertIn(node.value, expected[i])
+        queue = deque()
+
+        for node in self.root.breadth():
+            no_root = node.root is None
+            queued_root = node.root in queue
+
+            self.assertTrue(no_root or queued_root)
+
+            if queued_root:
+                while queue[0] is not node.root:
+                    queue.popleft()
+
+            queue.append(node)
 
     def test_depth_iterator(self):
 
