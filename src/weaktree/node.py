@@ -131,7 +131,7 @@ class WeakTreeNode(Generic[T]):
                 return WeakTreeNode._idle
             case _:
                 if not self.root:
-                    # If we're top level and ask for deault, default to pruning.
+                    # If we're top level and ask for default, default to pruning.
                     return WeakTreeNode.prune
                 # Otherwise, find the root's cleanup method.
                 return self.root._get_cleanup_method(self.root._cleanup_mode)
@@ -143,8 +143,10 @@ class WeakTreeNode(Generic[T]):
         """
         if node.root:
             node.root._branches.discard(node)
-        # TODO Make ._root a weakref so this will allow it to auto cleanup when its root
-        # is gone.
+        # Since _root is a weakref, this will allow the branches to untangle and
+        # disappear, unless there exists another strong reference to them elsewhere.
+        # We don't want to ruin user code by trying to delete their object out from
+        # under them, so this is our best bet.
         node._branches.clear()
 
     @staticmethod
