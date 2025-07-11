@@ -228,6 +228,16 @@ class TreeIterable(ABC, Generic[IterT]):
 
             stack.extend(node.branches)
 
+    def to_root(self) -> Iterator[IterT]:
+        """
+        Provides a generator that traces the tree back to the furthest root.
+        """
+        node: WeakTreeNode | None = self._root_node
+        while node:
+            yield self._get_iter_output(node)
+
+            node = node.root
+
     def __iter__(self) -> Iterator[IterT]:
         yield from self.breadth()
 
