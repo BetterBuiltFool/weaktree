@@ -30,6 +30,8 @@ def _idle(node: WeakTreeNode[T]):
 def _prune(node: WeakTreeNode[T]):
     if node.root:
         node.root._branches.discard(node)
+    # This will allow the branch to unwind and be gc'd unless the user has another
+    # reference to any of the nodes somehwere.
     node._branches.clear()
 
 
@@ -84,9 +86,12 @@ class WeakTreeNode(Generic[T]):
                 _get_cleanup_method(self, self._cleanup_mode)(self)
 
         self._data = ref(data, _remove)
+
         self._root: ref[WeakTreeNode[T]] | None = None
         self.root = root
+
         self._branches: set[WeakTreeNode[T]] = set()
+
         self._cleanup_mode: CleanupMode = cleanup_mode
 
     @property
