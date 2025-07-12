@@ -124,6 +124,27 @@ class WeakTreeNode(Generic[T]):
 
         yield from NodeIterable(self).to_root()
 
+    def nodes(self) -> NodeIterable:
+        """
+        Returns an iterable that allows iteration over the nodes of the tree, starting
+        from the calling node.
+        """
+        return NodeIterable(self)
+
+    def values(self) -> ValueIterable[T]:
+        """
+        Returns an iterable that allows iteration over the values of the tree, starting
+        from the calling node.
+        """
+        return ValueIterable[T](self)
+
+    def items(self) -> ItemsIterable[T]:
+        """
+        Returns an iterable that allows iteration over both the nodes and values of the
+        tree, starting from the calling node.
+        """
+        return ItemsIterable[T](self)
+
     def _cleanup(self):
         self._get_cleanup_method(self._cleanup_mode)(self)
 
