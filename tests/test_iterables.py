@@ -68,6 +68,7 @@ class Test_NodeIterable(unittest.TestCase):
             queued_root = node.root in queue
 
             self.assertTrue(no_root or queued_root)
+            self.assertIsInstance(node, WeakTreeNode)
 
             if queued_root:
                 while queue[0] is not node.root:
@@ -85,6 +86,7 @@ class Test_NodeIterable(unittest.TestCase):
             stack_root = node.root in stack
 
             self.assertTrue(no_root or stack_root)
+            self.assertIsInstance(node, WeakTreeNode)
 
             if stack_root:
                 # For a descendant, remove the chain until we get to the node's
