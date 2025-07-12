@@ -64,6 +64,11 @@ def _get_cleanup_method(
 
 
 class WeakTreeNode(Generic[T]):
+    """
+    An object that allows for the formation of data trees that don't form strong
+    references to its data. WeakTreeNodes can be configured to control the result when
+    the data in the reference dies.
+    """
 
     # These are here to allow use without needing to import the enum
     DEFAULT: ClassVar[CleanupMode] = CleanupMode.DEFAULT
@@ -96,10 +101,17 @@ class WeakTreeNode(Generic[T]):
 
     @property
     def branches(self) -> set[WeakTreeNode[T]]:
+        """
+        A set of nodes that descend from the current node.
+        """
         return self._branches
 
     @property
     def root(self) -> WeakTreeNode[T] | None:
+        """
+        A node that sits higher in the tree than the current node.
+        If None, the current node is considered top-level.
+        """
         if self._root:
             return self._root()
         return None
@@ -116,6 +128,9 @@ class WeakTreeNode(Generic[T]):
 
     @property
     def data(self) -> T | None:
+        """
+        The value stored by the node.
+        """
         # Dereference our data so the real object can be used.
         return self._data()
 
@@ -204,6 +219,9 @@ class WeakTreeNode(Generic[T]):
 
 
 class TreeIterable(ABC, Generic[IterT]):
+    """
+    Generic base class for iterating over trees.
+    """
 
     def __init__(self, starting_node: WeakTreeNode[T]) -> None:
         self._root_node = starting_node
@@ -251,6 +269,9 @@ class TreeIterable(ABC, Generic[IterT]):
             node = node.root
 
     def __iter__(self) -> Iterator[IterT]:
+        """
+        Provides a default iterator for the node. By default, iterates by breadth-first.
+        """
         yield from self.breadth()
 
 
