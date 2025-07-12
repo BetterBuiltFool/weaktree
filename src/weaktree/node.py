@@ -275,7 +275,7 @@ class ValueIterable(TreeIterable[T | None]):
         return node.value
 
 
-class ItemsIterable(TreeIterable[tuple[WeakTreeNode, T | None]]):
+class ItemsIterable(TreeIterable[tuple[WeakTreeNode[T], T | None]]):
     """
     Variant of TreeIterable that provides pairs of nodes with their values when
     iterated over.
