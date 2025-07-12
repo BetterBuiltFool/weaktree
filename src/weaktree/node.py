@@ -15,6 +15,18 @@ T = TypeVar("T")
 IterT = TypeVar("IterT")
 
 
+class CleanupMode(Enum):
+    DEFAULT = auto()
+    PRUNE = auto()
+    REPARENT = auto()
+    NO_CLEANUP = auto()
+
+
+def _idle(node: WeakTreeNode[T]):
+    # Intentionally do nothing.
+    pass
+
+
 def _prune(node: WeakTreeNode[T]):
     if node.root:
         node.root._branches.discard(node)
@@ -28,12 +40,11 @@ def _reparent(node: WeakTreeNode[T]):
         subnode.root = node.root
 
 
-def _idle(node: WeakTreeNode[T]):
-    # Intentionally do nothing.
-    pass
+def _get_cleanup_method(
+    node: WeakTreeNode[T],
+    cleanup_method: CleanupMode,
+) -> Callable[[WeakTreeNode], None]:
 
-
-def _get_cleanup_method(node: WeakTreeNode[T], cleanup_method: CleanupMode) -> Callable:
     match cleanup_method:
         case CleanupMode.PRUNE:
             return _prune
@@ -48,13 +59,6 @@ def _get_cleanup_method(node: WeakTreeNode[T], cleanup_method: CleanupMode) -> C
                 return _prune
             # Otherwise, find the root's cleanup method.
             return _get_cleanup_method(root, root._cleanup_mode)
-
-
-class CleanupMode(Enum):
-    DEFAULT = auto()
-    PRUNE = auto()
-    REPARENT = auto()
-    NO_CLEANUP = auto()
 
 
 class WeakTreeNode(Generic[T]):
