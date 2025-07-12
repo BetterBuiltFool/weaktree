@@ -33,9 +33,7 @@ def _idle(node: WeakTreeNode[T]):
     pass
 
 
-def _get_cleanup_method(
-    node: WeakTreeNode[T], cleanup_method: WeakTreeNode.CleanupMode
-) -> Callable:
+def _get_cleanup_method(node: WeakTreeNode[T], cleanup_method: CleanupMode) -> Callable:
     match cleanup_method:
         case WeakTreeNode.PRUNE:
             return _prune
@@ -52,13 +50,14 @@ def _get_cleanup_method(
             return _get_cleanup_method(root, root._cleanup_mode)
 
 
-class WeakTreeNode(Generic[T]):
+class CleanupMode(Enum):
+    DEFAULT = auto()
+    PRUNE = auto()
+    REPARENT = auto()
+    NO_CLEANUP = auto()
 
-    class CleanupMode(Enum):
-        DEFAULT = auto()
-        PRUNE = auto()
-        REPARENT = auto()
-        NO_CLEANUP = auto()
+
+class WeakTreeNode(Generic[T]):
 
     DEFAULT: ClassVar[CleanupMode] = CleanupMode.DEFAULT
     PRUNE: ClassVar[CleanupMode] = CleanupMode.PRUNE
@@ -83,7 +82,7 @@ class WeakTreeNode(Generic[T]):
         self._root: ref[WeakTreeNode[T]] | None = None
         self.root = root
         self._branches: set[WeakTreeNode[T]] = set()
-        self._cleanup_mode: WeakTreeNode.CleanupMode = cleanup_mode
+        self._cleanup_mode: CleanupMode = cleanup_mode
 
     @property
     def branches(self) -> set[WeakTreeNode[T]]:
