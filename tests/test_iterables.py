@@ -10,8 +10,8 @@ sys.path.append(str(pathlib.Path.cwd()))
 from src.weaktree.node import (  # noqa: E402
     WeakTreeNode,
     NodeIterable,
-    # ValueIterable,
-    # ItemsIterable,
+    ValueIterable,
+    ItemsIterable,
 )
 
 
@@ -108,6 +108,58 @@ class Test_NodeIterable(unittest.TestCase):
                 self.assertIs(node, previous_node.root)
                 self.assertIsInstance(node, WeakTreeNode)
             previous_node = node
+
+
+class Test_ValueIterable(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.iterable = ValueIterable[TestObject](root)
+
+    def test_breadth_iterator(self):
+        # We already have a test for iterator order in Test_NodeIterator, so we're just
+        # doing isntance checking here.
+
+        for value in self.iterable.breadth():
+            self.assertIsInstance(value, TestObject)
+
+    def test_depth_iterator(self):
+        for value in self.iterable.depth():
+            self.assertIsInstance(value, TestObject)
+
+    def test_to_root(self) -> None:
+        iterable = ValueIterable[TestObject](branch9)
+
+        for value in iterable.to_root():
+            self.assertIsInstance(value, TestObject)
+
+
+class Test_ItemIterable(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.iterable = ItemsIterable[TestObject](root)
+
+    def test_breadth_iterator(self):
+        # We already have a test for iterator order in Test_NodeIterator, so we're just
+        # doing isntance checking here.
+
+        # Unpack will fail if it isn't a tuple, so we can directly to instance checking
+        # on the resultant values.
+
+        for node, value in self.iterable.breadth():
+            self.assertIsInstance(node, WeakTreeNode)
+            self.assertIsInstance(value, TestObject)
+
+    def test_depth_iterator(self):
+        for node, value in self.iterable.depth():
+            self.assertIsInstance(node, WeakTreeNode)
+            self.assertIsInstance(value, TestObject)
+
+    def test_to_root(self) -> None:
+        iterable = ItemsIterable[TestObject](branch9)
+
+        for node, value in iterable.to_root():
+            self.assertIsInstance(node, WeakTreeNode)
+            self.assertIsInstance(value, TestObject)
 
 
 if __name__ == "__main__":
