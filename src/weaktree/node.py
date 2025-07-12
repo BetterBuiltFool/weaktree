@@ -77,7 +77,7 @@ class WeakTreeNode(Generic[T]):
             if callback:
                 callback(wr)
             if self:
-                self._cleanup()
+                _get_cleanup_method(self, self._cleanup_mode)(self)
 
         self._data = ref(data, _remove)
         self._root: ref[WeakTreeNode[T]] | None = None
@@ -181,24 +181,6 @@ class WeakTreeNode(Generic[T]):
         tree, starting from the calling node.
         """
         return ItemsIterable[T](self)
-
-    def _cleanup(self):
-        _get_cleanup_method(self, self._cleanup_mode)(self)
-
-    # def _get_cleanup_method(self, cleanup_method: CleanupMode) -> Callable:
-    #     match cleanup_method:
-    #         case self.PRUNE:
-    #             return WeakTreeNode.prune
-    #         case self.REPARENT:
-    #             return WeakTreeNode.reparent
-    #         case self.NO_CLEANUP:
-    #             return WeakTreeNode._idle
-    #         case _:
-    #             if not self.root:
-    #                 # If we're top level and ask for default, default to pruning.
-    #                 return WeakTreeNode.prune
-    #             # Otherwise, find the root's cleanup method.
-    #             return self.root._get_cleanup_method(self.root._cleanup_mode)
 
     def __iter__(self) -> Iterator[WeakTreeNode[T]]:
         """
