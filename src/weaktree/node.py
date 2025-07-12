@@ -2,10 +2,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import deque
-from collections.abc import Callable, Generator, Iterator
 from enum import auto, Enum
-from typing import ClassVar, Generic, TypeVar
+from typing import Generic, TypeVar, TYPE_CHECKING
 from weakref import ref
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+    from typing import ClassVar
+
 
 T = TypeVar("T")
 IterT = TypeVar("IterT")
@@ -91,7 +95,7 @@ class WeakTreeNode(Generic[T]):
         node = WeakTreeNode(value, self, callback, cleanup_mode)
         return node
 
-    def breadth(self) -> Generator[WeakTreeNode[T]]:
+    def breadth(self) -> Iterator[WeakTreeNode[T]]:
         """
         Provides a generator that performs a breadth-first traversal of the tree
         starting at the current node.
@@ -102,7 +106,7 @@ class WeakTreeNode(Generic[T]):
         # to change what the default iteration mode is.
         yield from NodeIterable(self).breadth()
 
-    def depth(self) -> Generator[WeakTreeNode[T]]:
+    def depth(self) -> Iterator[WeakTreeNode[T]]:
         """
         Provides a generator that performs a depth-first traversal of the tree
         starting at the current node.
@@ -111,7 +115,7 @@ class WeakTreeNode(Generic[T]):
         """
         yield from NodeIterable(self).depth()
 
-    def to_root(self) -> Generator[WeakTreeNode[T]]:
+    def to_root(self) -> Iterator[WeakTreeNode[T]]:
         """
         Provides a generator that traces the tree back to the furthest root.
 
@@ -167,7 +171,7 @@ class WeakTreeNode(Generic[T]):
         # Intentionally do nothing.
         pass
 
-    def __iter__(self) -> Generator[WeakTreeNode[T]]:
+    def __iter__(self) -> Iterator[WeakTreeNode[T]]:
         """
         Default iteration method, in this case, breadth-first.
 
