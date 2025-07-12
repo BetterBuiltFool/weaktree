@@ -98,12 +98,9 @@ class WeakTreeNode(Generic[T]):
 
         :yield: The next node in the tree, breadth-first.
         """
-        queue: deque[WeakTreeNode[T]] = deque([self])
-        while queue:
-            node = queue.popleft()
-            yield node
-
-            queue.extend(node.branches)
+        # The .breadth() isn't strictly needed, but could cause an issue if we decide
+        # to change what the default iteration mode is.
+        yield from NodeIterable(self).breadth()
 
     def depth(self) -> Generator[WeakTreeNode[T]]:
         """
@@ -112,12 +109,7 @@ class WeakTreeNode(Generic[T]):
 
         :yield: The next node in the tree, depth-first.
         """
-        stack: list[WeakTreeNode[T]] = [self]
-        while stack:
-            node = stack.pop()
-            yield node
-
-            stack.extend(node.branches)
+        yield from NodeIterable(self).depth()
 
     def to_root(self) -> Generator[WeakTreeNode[T]]:
         """
@@ -126,11 +118,7 @@ class WeakTreeNode(Generic[T]):
         :yield: The root node of the previous node.
         """
 
-        node: WeakTreeNode[T] | None = self
-        while node:
-            yield node
-
-            node = node.root
+        yield from NodeIterable(self).to_root()
 
     def _cleanup(self):
         self._get_cleanup_method(self._cleanup_mode)(self)
