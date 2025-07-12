@@ -70,6 +70,24 @@ class TestNode(unittest.TestCase):
     def test_items(self):
         self.assertIsInstance(self.root.items(), ItemsIterable)
 
+    def test_callback(self):
+        # Add a custom callback to a node that will get cleaned up.
+
+        global callback_ran
+        callback_ran = False
+
+        def callback(wr):
+            global callback_ran
+            callback_ran = True
+
+        ephemeral_data = TestObject("NotLongForThisWorld")
+
+        WeakTreeNode(ephemeral_data, self.root, callback)
+
+        del ephemeral_data
+
+        self.assertTrue(callback_ran)
+
 
 if __name__ == "__main__":
     unittest.main()
