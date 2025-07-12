@@ -106,6 +106,7 @@ class Test_NodeIterable(unittest.TestCase):
         for node in iterable.to_root():
             if previous_node:
                 self.assertIs(node, previous_node.root)
+                self.assertIsInstance(node, WeakTreeNode)
             previous_node = node
 
 
