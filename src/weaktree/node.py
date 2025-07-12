@@ -15,9 +15,23 @@ T = TypeVar("T")
 IterT = TypeVar("IterT")
 
 
+class CleanupMode(Enum):
+    DEFAULT = auto()
+    PRUNE = auto()
+    REPARENT = auto()
+    NO_CLEANUP = auto()
+
+
+def _idle(node: WeakTreeNode[T]):
+    # Intentionally do nothing.
+    pass
+
+
 def _prune(node: WeakTreeNode[T]):
     if node.root:
         node.root._branches.discard(node)
+    # This will allow the branch to unwind and be gc'd unless the user has another
+    # reference to any of the nodes somehwere.
     node._branches.clear()
 
 
@@ -28,20 +42,17 @@ def _reparent(node: WeakTreeNode[T]):
         subnode.root = node.root
 
 
-def _idle(node: WeakTreeNode[T]):
-    # Intentionally do nothing.
-    pass
-
-
 def _get_cleanup_method(
-    node: WeakTreeNode[T], cleanup_method: WeakTreeNode.CleanupMode
-) -> Callable:
+    node: WeakTreeNode[T],
+    cleanup_method: CleanupMode,
+) -> Callable[[WeakTreeNode], None]:
+
     match cleanup_method:
-        case WeakTreeNode.PRUNE:
+        case CleanupMode.PRUNE:
             return _prune
-        case WeakTreeNode.REPARENT:
+        case CleanupMode.REPARENT:
             return _reparent
-        case WeakTreeNode.NO_CLEANUP:
+        case CleanupMode.NO_CLEANUP:
             return _idle
         case _:
             root = node.root
@@ -54,12 +65,7 @@ def _get_cleanup_method(
 
 class WeakTreeNode(Generic[T]):
 
-    class CleanupMode(Enum):
-        DEFAULT = auto()
-        PRUNE = auto()
-        REPARENT = auto()
-        NO_CLEANUP = auto()
-
+    # These are here to allow use without needing to import the enum
     DEFAULT: ClassVar[CleanupMode] = CleanupMode.DEFAULT
     PRUNE: ClassVar[CleanupMode] = CleanupMode.PRUNE
     REPARENT: ClassVar[CleanupMode] = CleanupMode.REPARENT
@@ -80,10 +86,13 @@ class WeakTreeNode(Generic[T]):
                 _get_cleanup_method(self, self._cleanup_mode)(self)
 
         self._data = ref(data, _remove)
+
         self._root: ref[WeakTreeNode[T]] | None = None
         self.root = root
+
         self._branches: set[WeakTreeNode[T]] = set()
-        self._cleanup_mode: WeakTreeNode.CleanupMode = cleanup_mode
+
+        self._cleanup_mode: CleanupMode = cleanup_mode
 
     @property
     def branches(self) -> set[WeakTreeNode[T]]:
