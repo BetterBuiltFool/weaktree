@@ -15,6 +15,43 @@ T = TypeVar("T")
 IterT = TypeVar("IterT")
 
 
+def _prune(node: WeakTreeNode[T]):
+    if node.root:
+        node.root._branches.discard(node)
+    node._branches.clear()
+
+
+def _reparent(node: WeakTreeNode[T]):
+    if node.root:
+        node.root._branches.discard(node)
+    for subnode in node._branches.copy():
+        subnode.root = node.root
+
+
+def _idle(node: WeakTreeNode[T]):
+    # Intentionally do nothing.
+    pass
+
+
+def _get_cleanup_method(
+    node: WeakTreeNode[T], cleanup_method: WeakTreeNode.CleanupMode
+) -> Callable:
+    match cleanup_method:
+        case WeakTreeNode.PRUNE:
+            return _prune
+        case WeakTreeNode.REPARENT:
+            return _reparent
+        case WeakTreeNode.NO_CLEANUP:
+            return _idle
+        case _:
+            root = node.root
+            if not root:
+                # If we're top level and ask for default, default to pruning.
+                return _prune
+            # Otherwise, find the root's cleanup method.
+            return _get_cleanup_method(root, root._cleanup_mode)
+
+
 class WeakTreeNode(Generic[T]):
 
     class CleanupMode(Enum):
@@ -40,13 +77,13 @@ class WeakTreeNode(Generic[T]):
             if callback:
                 callback(wr)
             if self:
-                self._cleanup()
+                _get_cleanup_method(self, self._cleanup_mode)(self)
 
         self._data = ref(data, _remove)
         self._root: ref[WeakTreeNode[T]] | None = None
         self.root = root
         self._branches: set[WeakTreeNode[T]] = set()
-        self._cleanup_mode = cleanup_mode
+        self._cleanup_mode: WeakTreeNode.CleanupMode = cleanup_mode
 
     @property
     def branches(self) -> set[WeakTreeNode[T]]:
@@ -144,53 +181,6 @@ class WeakTreeNode(Generic[T]):
         tree, starting from the calling node.
         """
         return ItemsIterable[T](self)
-
-    def _cleanup(self):
-        self._get_cleanup_method(self._cleanup_mode)(self)
-
-    def _get_cleanup_method(self, cleanup_method: CleanupMode) -> Callable:
-        match cleanup_method:
-            case self.PRUNE:
-                return WeakTreeNode.prune
-            case self.REPARENT:
-                return WeakTreeNode.reparent
-            case self.NO_CLEANUP:
-                return WeakTreeNode._idle
-            case _:
-                if not self.root:
-                    # If we're top level and ask for default, default to pruning.
-                    return WeakTreeNode.prune
-                # Otherwise, find the root's cleanup method.
-                return self.root._get_cleanup_method(self.root._cleanup_mode)
-
-    @staticmethod
-    def prune(node: WeakTreeNode[T]):
-        """
-        Removes a node and all of its descendants.
-        """
-        if node.root:
-            node.root._branches.discard(node)
-        # Since _root is a weakref, this will allow the branches to untangle and
-        # disappear, unless there exists another strong reference to them elsewhere.
-        # We don't want to ruin user code by trying to delete their object out from
-        # under them, so this is our best bet.
-        node._branches.clear()
-
-    @staticmethod
-    def reparent(node: WeakTreeNode[T]):
-        """
-        Shifts a node's branches into the node's root.
-        """
-        print(f"Reparenting {node}'s branches")
-        if node.root:
-            node.root._branches.discard(node)
-        for subnode in node._branches.copy():
-            subnode.root = node.root
-
-    @staticmethod
-    def _idle(node: WeakTreeNode[T]):
-        # Intentionally do nothing.
-        pass
 
     def __iter__(self) -> Iterator[WeakTreeNode[T]]:
         """
