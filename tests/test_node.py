@@ -6,7 +6,12 @@ import unittest
 
 sys.path.append(str(pathlib.Path.cwd()))
 
-from src.weaktree.node import WeakTreeNode  # noqa: E402
+from src.weaktree.node import (  # noqa: E402
+    WeakTreeNode,
+    ItemsIterable,
+    NodeIterable,
+    ValueIterable,
+)
 
 
 class TestObject:
@@ -55,6 +60,15 @@ class TestNode(unittest.TestCase):
         # about excess references.
         # We could also do this by chaining add_branch, but that actually becomes
         # _less_ readable.
+
+    def test_nodes(self):
+        self.assertIsInstance(self.root.nodes(), NodeIterable)
+
+    def test_values(self):
+        self.assertIsInstance(self.root.values(), ValueIterable)
+
+    def test_items(self):
+        self.assertIsInstance(self.root.items(), ItemsIterable)
 
 
 if __name__ == "__main__":
