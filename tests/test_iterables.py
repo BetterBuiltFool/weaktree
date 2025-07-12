@@ -97,6 +97,17 @@ class Test_NodeIterable(unittest.TestCase):
 
             stack.append(node)
 
+    def test_to_root(self) -> None:
+
+        iterable = NodeIterable(branch9)
+
+        previous_node: WeakTreeNode | None = None
+
+        for node in iterable.to_root():
+            if previous_node:
+                self.assertIs(node, previous_node.root)
+            previous_node = node
+
 
 if __name__ == "__main__":
     unittest.main()
