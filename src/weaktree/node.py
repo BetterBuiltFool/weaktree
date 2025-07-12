@@ -30,7 +30,7 @@ class WeakTreeNode(Generic[T]):
 
     def __init__(
         self,
-        value: T,
+        data: T,
         root: WeakTreeNode | None = None,
         callback: Callable | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
@@ -42,7 +42,7 @@ class WeakTreeNode(Generic[T]):
             if self:
                 self._cleanup()
 
-        self._value = ref(value, _remove)
+        self._data = ref(data, _remove)
         self._root: ref[WeakTreeNode[T]] | None = None
         self.root = root
         self._branches: set[WeakTreeNode[T]] = set()
@@ -69,13 +69,13 @@ class WeakTreeNode(Generic[T]):
             self._root = None
 
     @property
-    def value(self) -> T | None:
-        # Dereference our value so the real object can be used.
-        return self._value()
+    def data(self) -> T | None:
+        # Dereference our data so the real object can be used.
+        return self._data()
 
     def add_branch(
         self,
-        value: T,
+        data: T,
         callback: Callable | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
     ) -> WeakTreeNode[T]:
@@ -85,14 +85,14 @@ class WeakTreeNode(Generic[T]):
 
         Returns the new isntance, so this can be chained without intermediate variables.
 
-        :param value: The value to be stored by the new WeakTreeNode
+        :param data: The data to be stored by the new WeakTreeNode
         :param callback: An optional additional callback function, called when the
-            value reference expires. Defaults to None.
+            data reference expires. Defaults to None.
         :param cleanup_mode: An enum indicating how the tree should cleanup after
-            itself when the value reference expires, defaults to DEFAULT.
+            itself when the data reference expires, defaults to DEFAULT.
         :return: The newly created node.
         """
-        node = WeakTreeNode(value, self, callback, cleanup_mode)
+        node = WeakTreeNode(data, self, callback, cleanup_mode)
         return node
 
     def breadth(self) -> Iterator[WeakTreeNode[T]]:
@@ -201,7 +201,7 @@ class WeakTreeNode(Generic[T]):
         yield from self.breadth()
 
     def __repr__(self) -> str:
-        return f"WeakTreeNode({self.value})"
+        return f"WeakTreeNode({self.data})"
 
 
 class TreeIterable(ABC, Generic[IterT]):
@@ -272,7 +272,7 @@ class ValueIterable(TreeIterable[T | None]):
     """
 
     def _get_iter_output(self, node: WeakTreeNode[T]) -> T | None:
-        return node.value
+        return node.data
 
 
 class ItemsIterable(TreeIterable[tuple[WeakTreeNode[T], T | None]]):
@@ -282,4 +282,4 @@ class ItemsIterable(TreeIterable[tuple[WeakTreeNode[T], T | None]]):
     """
 
     def _get_iter_output(self, node: WeakTreeNode) -> tuple[WeakTreeNode, T | None]:
-        return node, node.value
+        return node, node.data
