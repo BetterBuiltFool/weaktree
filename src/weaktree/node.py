@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections import deque
-from collections.abc import Callable, Generator
 from enum import auto, Enum
-from typing import ClassVar, Generic, TypeVar
+from typing import Generic, TypeVar, TYPE_CHECKING
 from weakref import ref
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+    from typing import ClassVar
+
+
 T = TypeVar("T")
+IterT = TypeVar("IterT")
 
 
 class WeakTreeNode(Generic[T]):
@@ -24,7 +30,7 @@ class WeakTreeNode(Generic[T]):
 
     def __init__(
         self,
-        value: T,
+        data: T,
         root: WeakTreeNode | None = None,
         callback: Callable | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
@@ -36,7 +42,7 @@ class WeakTreeNode(Generic[T]):
             if self:
                 self._cleanup()
 
-        self._value = ref(value, _remove)
+        self._data = ref(data, _remove)
         self._root: ref[WeakTreeNode[T]] | None = None
         self.root = root
         self._branches: set[WeakTreeNode[T]] = set()
@@ -63,13 +69,13 @@ class WeakTreeNode(Generic[T]):
             self._root = None
 
     @property
-    def value(self) -> T | None:
-        # Dereference our value so the real object can be used.
-        return self._value()
+    def data(self) -> T | None:
+        # Dereference our data so the real object can be used.
+        return self._data()
 
     def add_branch(
         self,
-        value: T,
+        data: T,
         callback: Callable | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
     ) -> WeakTreeNode[T]:
@@ -79,56 +85,65 @@ class WeakTreeNode(Generic[T]):
 
         Returns the new isntance, so this can be chained without intermediate variables.
 
-        :param value: The value to be stored by the new WeakTreeNode
+        :param data: The data to be stored by the new WeakTreeNode
         :param callback: An optional additional callback function, called when the
-            value reference expires. Defaults to None.
+            data reference expires. Defaults to None.
         :param cleanup_mode: An enum indicating how the tree should cleanup after
-            itself when the value reference expires, defaults to DEFAULT.
+            itself when the data reference expires, defaults to DEFAULT.
         :return: The newly created node.
         """
-        node = WeakTreeNode(value, self, callback, cleanup_mode)
+        node = WeakTreeNode(data, self, callback, cleanup_mode)
         return node
 
-    def breadth(self) -> Generator[WeakTreeNode[T]]:
+    def breadth(self) -> Iterator[WeakTreeNode[T]]:
         """
         Provides a generator that performs a breadth-first traversal of the tree
         starting at the current node.
 
         :yield: The next node in the tree, breadth-first.
         """
-        queue: deque[WeakTreeNode[T]] = deque([self])
-        while queue:
-            node = queue.popleft()
-            yield node
+        # The .breadth() isn't strictly needed, but could cause an issue if we decide
+        # to change what the default iteration mode is.
+        yield from NodeIterable(self).breadth()
 
-            queue.extend(node.branches)
-
-    def depth(self) -> Generator[WeakTreeNode[T]]:
+    def depth(self) -> Iterator[WeakTreeNode[T]]:
         """
         Provides a generator that performs a depth-first traversal of the tree
         starting at the current node.
 
         :yield: The next node in the tree, depth-first.
         """
-        stack: list[WeakTreeNode[T]] = [self]
-        while stack:
-            node = stack.pop()
-            yield node
+        yield from NodeIterable(self).depth()
 
-            stack.extend(node.branches)
-
-    def to_root(self) -> Generator[WeakTreeNode[T]]:
+    def to_root(self) -> Iterator[WeakTreeNode[T]]:
         """
         Provides a generator that traces the tree back to the furthest root.
 
         :yield: The root node of the previous node.
         """
 
-        node: WeakTreeNode[T] | None = self
-        while node:
-            yield node
+        yield from NodeIterable(self).to_root()
 
-            node = node.root
+    def nodes(self) -> NodeIterable:
+        """
+        Returns an iterable that allows iteration over the nodes of the tree, starting
+        from the calling node.
+        """
+        return NodeIterable(self)
+
+    def values(self) -> ValueIterable[T]:
+        """
+        Returns an iterable that allows iteration over the values of the tree, starting
+        from the calling node.
+        """
+        return ValueIterable[T](self)
+
+    def items(self) -> ItemsIterable[T]:
+        """
+        Returns an iterable that allows iteration over both the nodes and values of the
+        tree, starting from the calling node.
+        """
+        return ItemsIterable[T](self)
 
     def _cleanup(self):
         self._get_cleanup_method(self._cleanup_mode)(self)
@@ -177,7 +192,7 @@ class WeakTreeNode(Generic[T]):
         # Intentionally do nothing.
         pass
 
-    def __iter__(self) -> Generator[WeakTreeNode[T]]:
+    def __iter__(self) -> Iterator[WeakTreeNode[T]]:
         """
         Default iteration method, in this case, breadth-first.
 
@@ -186,4 +201,85 @@ class WeakTreeNode(Generic[T]):
         yield from self.breadth()
 
     def __repr__(self) -> str:
-        return f"WeakTreeNode({self.value})"
+        return f"WeakTreeNode({self.data})"
+
+
+class TreeIterable(ABC, Generic[IterT]):
+
+    def __init__(self, starting_node: WeakTreeNode[T]) -> None:
+        self._root_node = starting_node
+
+    @abstractmethod
+    def _get_iter_output(self, node: WeakTreeNode) -> IterT:
+        pass
+
+    def breadth(self) -> Iterator[IterT]:
+        """
+        Provides a generator that performs a breadth-first traversal of the tree
+        starting at the root node of the iterable.
+
+        Order is not guaranteed.
+        """
+        queue: deque[WeakTreeNode] = deque([self._root_node])
+        while queue:
+            node = queue.popleft()
+            yield self._get_iter_output(node)
+
+            queue.extend(node.branches)
+
+    def depth(self) -> Iterator[IterT]:
+        """
+        Provides a generator that performs a depth-first traversal of the tree,
+        starting from the root node of the iterable.
+
+        Order is not guaranteed.
+        """
+        stack: list[WeakTreeNode] = [self._root_node]
+        while stack:
+            node = stack.pop()
+            yield self._get_iter_output(node)
+
+            stack.extend(node.branches)
+
+    def to_root(self) -> Iterator[IterT]:
+        """
+        Provides a generator that traces the tree back to the furthest root.
+        """
+        node: WeakTreeNode | None = self._root_node
+        while node:
+            yield self._get_iter_output(node)
+
+            node = node.root
+
+    def __iter__(self) -> Iterator[IterT]:
+        yield from self.breadth()
+
+
+class NodeIterable(TreeIterable[WeakTreeNode]):
+    """
+    Variant of TreeIterator that provides the nodes of the tree themselves when
+    iterated over.
+    """
+
+    def _get_iter_output(self, node: WeakTreeNode[T]) -> WeakTreeNode[T]:
+        return node
+
+
+class ValueIterable(TreeIterable[T | None]):
+    """
+    Variant of TreeIterator that provides the values of the nodes of the tree when
+    iterated over.
+    """
+
+    def _get_iter_output(self, node: WeakTreeNode[T]) -> T | None:
+        return node.data
+
+
+class ItemsIterable(TreeIterable[tuple[WeakTreeNode[T], T | None]]):
+    """
+    Variant of TreeIterable that provides pairs of nodes with their values when
+    iterated over.
+    """
+
+    def _get_iter_output(self, node: WeakTreeNode) -> tuple[WeakTreeNode, T | None]:
+        return node, node.data

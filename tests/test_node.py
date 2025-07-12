@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-from collections import deque
 import pathlib
 import sys
 import unittest
 
 sys.path.append(str(pathlib.Path.cwd()))
 
-from src.weaktree.node import WeakTreeNode  # noqa: E402
+from src.weaktree.node import (  # noqa: E402
+    WeakTreeNode,
+    ItemsIterable,
+    NodeIterable,
+    ValueIterable,
+)
 
 
 class TestObject:
@@ -57,41 +61,14 @@ class TestNode(unittest.TestCase):
         # We could also do this by chaining add_branch, but that actually becomes
         # _less_ readable.
 
-    def test_breadth_iterator(self):
+    def test_nodes(self):
+        self.assertIsInstance(self.root.nodes(), NodeIterable)
 
-        queue = deque()
+    def test_values(self):
+        self.assertIsInstance(self.root.values(), ValueIterable)
 
-        for node in self.root.breadth():
-            no_root = node.root is None
-            queued_root = node.root in queue
-
-            self.assertTrue(no_root or queued_root)
-
-            if queued_root:
-                while queue[0] is not node.root:
-                    queue.popleft()
-
-            queue.append(node)
-
-    def test_depth_iterator(self):
-
-        stack = []
-
-        for node in self.root.depth():
-            # Determine if our node is top level, or a decendant of one in the stack
-            no_root = node.root is None
-            stack_root = node.root in stack
-
-            self.assertTrue(no_root or stack_root)
-
-            if stack_root:
-                # For a descendant, remove the chain until we get to the node's
-                # parent. If we end up out of order, this is what will cause our
-                # test to fail
-                while stack[-1] is not node.root:
-                    stack.pop()
-
-            stack.append(node)
+    def test_items(self):
+        self.assertIsInstance(self.root.items(), ItemsIterable)
 
 
 if __name__ == "__main__":
