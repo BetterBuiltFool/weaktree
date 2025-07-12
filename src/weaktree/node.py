@@ -35,11 +35,11 @@ def _idle(node: WeakTreeNode[T]):
 
 def _get_cleanup_method(node: WeakTreeNode[T], cleanup_method: CleanupMode) -> Callable:
     match cleanup_method:
-        case WeakTreeNode.PRUNE:
+        case CleanupMode.PRUNE:
             return _prune
-        case WeakTreeNode.REPARENT:
+        case CleanupMode.REPARENT:
             return _reparent
-        case WeakTreeNode.NO_CLEANUP:
+        case CleanupMode.NO_CLEANUP:
             return _idle
         case _:
             root = node.root
@@ -59,6 +59,7 @@ class CleanupMode(Enum):
 
 class WeakTreeNode(Generic[T]):
 
+    # These are here to allow use without needing to import the enum
     DEFAULT: ClassVar[CleanupMode] = CleanupMode.DEFAULT
     PRUNE: ClassVar[CleanupMode] = CleanupMode.PRUNE
     REPARENT: ClassVar[CleanupMode] = CleanupMode.REPARENT
