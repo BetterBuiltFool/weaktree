@@ -147,6 +147,41 @@ class TestNode(unittest.TestCase):
         # e2 should now be a child of self.root
         self.assertIs(branch_e2.root, self.root)
 
+    def test_no_cleanup(self):
+        ephemeral_data = {
+            "1": TestObject("E1"),
+            "2": TestObject("E2"),
+            "3": TestObject("E3"),
+        }
+
+        branch_e1 = WeakTreeNode(
+            ephemeral_data["1"], self.root, cleanup_mode=WeakTreeNode.NO_CLEANUP
+        )
+        branch_e2 = branch_e1.add_branch(ephemeral_data["2"])
+        branch_e3_wr = ref(branch_e2.add_branch(ephemeral_data["3"]))
+
+        branch_e2_wr = ref(branch_e2)
+
+        del branch_e2  # Ensure there's no strong reference to e2
+
+        # Ensure our nodes exist
+        self.assertIsNotNone(branch_e2_wr())
+        self.assertIsNotNone(branch_e3_wr())
+
+        ephemeral_data.pop("1")
+
+        # We want our nodes to still exist
+        branch_e2 = branch_e2_wr()
+        self.assertIsNotNone(branch_e2)
+        self.assertIsNotNone(branch_e3_wr())
+
+        assert branch_e2  # for the static type checker
+
+        # e1 should still exist and still be the parent of e2
+        self.assertIs(branch_e2.root, branch_e1)
+        # e1 should be empty, or rather the weakref should return None
+        self.assertIsNone(branch_e1.data)
+
 
 if __name__ == "__main__":
     unittest.main()
