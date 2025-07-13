@@ -153,8 +153,7 @@ class WeakTreeNode(Generic[T]):
             itself when the data reference expires, defaults to DEFAULT.
         :return: The newly created node.
         """
-        node = WeakTreeNode(data, self, callback, cleanup_mode)
-        return node
+        return WeakTreeNode(data, self, callback, cleanup_mode)
 
     def breadth(self) -> Iterator[WeakTreeNode[T]]:
         """
@@ -215,7 +214,7 @@ class WeakTreeNode(Generic[T]):
         yield from self.breadth()
 
     def __repr__(self) -> str:
-        return f"WeakTreeNode({self.data})"
+        return f"WeakTreeNode({self.data}, {self.root})"
 
 
 class TreeIterable(ABC, Generic[IterT]):
