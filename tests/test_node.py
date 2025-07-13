@@ -3,6 +3,7 @@ from __future__ import annotations
 import pathlib
 import sys
 import unittest
+from weakref import ref
 
 sys.path.append(str(pathlib.Path.cwd()))
 
@@ -87,6 +88,31 @@ class TestNode(unittest.TestCase):
         del ephemeral_data
 
         self.assertTrue(callback_ran)
+
+    def test_prune(self):
+        ephemeral_data = {
+            "1": TestObject("E1"),
+            "2": TestObject("E2"),
+            "3": TestObject("E3"),
+        }
+
+        branch_e1 = WeakTreeNode(ephemeral_data["1"], self.root)
+        branch_e2 = branch_e1.add_branch(ephemeral_data["2"])
+        branch_e3_wr = ref(branch_e2.add_branch(ephemeral_data["3"]))
+
+        branch_e2_wr = ref(branch_e2)
+
+        del branch_e2  # Ensure there's no strong reference to e2
+
+        # Ensure our nodes exist
+        self.assertIsNotNone(branch_e2_wr())
+        self.assertIsNotNone(branch_e3_wr())
+
+        ephemeral_data.pop("1")
+
+        # This should cause branch_e1 to dissolve, and unwind branch_e2
+        self.assertIsNone(branch_e2_wr())
+        self.assertIsNone(branch_e3_wr())
 
 
 if __name__ == "__main__":
