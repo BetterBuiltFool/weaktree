@@ -83,7 +83,7 @@ class TestNode(unittest.TestCase):
 
         ephemeral_data = TestObject("NotLongForThisWorld")
 
-        WeakTreeNode(ephemeral_data, self.root, callback)
+        WeakTreeNode(ephemeral_data, self.root, callback=callback)
 
         del ephemeral_data
 

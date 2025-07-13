@@ -80,8 +80,8 @@ class WeakTreeNode(Generic[T]):
         self,
         data: T,
         root: WeakTreeNode | None = None,
-        callback: Callable | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
+        callback: Callable | None = None,
     ) -> None:
         def _remove(wr: ref, selfref=ref(self)):
             self = selfref()
@@ -137,8 +137,8 @@ class WeakTreeNode(Generic[T]):
     def add_branch(
         self,
         data: T,
-        callback: Callable | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
+        callback: Callable | None = None,
     ) -> WeakTreeNode[T]:
         """
         Creates a new node as a child of the current node, with a weak reference to the
@@ -147,13 +147,13 @@ class WeakTreeNode(Generic[T]):
         Returns the new isntance, so this can be chained without intermediate variables.
 
         :param data: The data to be stored by the new WeakTreeNode
-        :param callback: An optional additional callback function, called when the
-            data reference expires. Defaults to None.
         :param cleanup_mode: An enum indicating how the tree should cleanup after
             itself when the data reference expires, defaults to DEFAULT.
+        :param callback: An optional additional callback function, called when the
+            data reference expires. Defaults to None.
         :return: The newly created node.
         """
-        return WeakTreeNode(data, self, callback, cleanup_mode)
+        return WeakTreeNode(data, self, cleanup_mode, callback)
 
     def breadth(self) -> Iterator[WeakTreeNode[T]]:
         """
