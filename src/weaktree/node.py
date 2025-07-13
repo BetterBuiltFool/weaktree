@@ -214,7 +214,7 @@ class WeakTreeNode(Generic[T]):
         yield from self.breadth()
 
     def __repr__(self) -> str:
-        return f"WeakTreeNode({self.data})"
+        return f"WeakTreeNode({self.data}, {self.root})"
 
 
 class TreeIterable(ABC, Generic[IterT]):
