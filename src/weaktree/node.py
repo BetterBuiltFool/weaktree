@@ -83,6 +83,19 @@ class WeakTreeNode(Generic[T]):
         cleanup_mode: CleanupMode = DEFAULT,
         callback: Callable | None = None,
     ) -> None:
+        """
+        Create a new node for a weakly-referencing tree.
+
+        :param data: The data to be stored by the new WeakTreeNode
+        :param root: The previous node in the tree for the new node, defaults to None,
+            which indicates a top-level node.
+        :param cleanup_mode: An enum indicating how the tree should cleanup after
+            itself when the data reference expires, defaults to DEFAULT, which calls
+            upon the root node, or prune if the high-level root is also DEFAULT.
+        :param callback: An optional additional callback function, called when the
+            data reference expires. Defaults to None.
+        """
+
         def _remove(wr: ref, selfref=ref(self)):
             self = selfref()
             if callback:
@@ -148,7 +161,8 @@ class WeakTreeNode(Generic[T]):
 
         :param data: The data to be stored by the new WeakTreeNode
         :param cleanup_mode: An enum indicating how the tree should cleanup after
-            itself when the data reference expires, defaults to DEFAULT.
+            itself when the data reference expires, defaults to DEFAULT, which calls
+            upon the root node, or prune if the high-level root is also DEFAULT.
         :param callback: An optional additional callback function, called when the
             data reference expires. Defaults to None.
         :return: The newly created node.
