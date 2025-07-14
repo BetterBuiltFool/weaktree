@@ -96,8 +96,13 @@ class WeakTreeNode(Generic[T]):
             data reference expires. Defaults to None.
         """
 
+        # Create a cleanup callback for our data reference
         def _remove(wr: ref, selfref=ref(self)):
+            # selfref gives us access to the instance within the callback without
+            # keeping it alive.
             self = selfref()
+            # It's fine to keep our user callback alive, though, it shouldn't be bound
+            # to anything.
             if callback:
                 callback(wr)
             if self:
