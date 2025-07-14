@@ -71,7 +71,7 @@ class WeakTreeNode(Generic[T]):
     the node's trunk, or leaving the empty node alone.
     """
 
-    # These are here to allow use without needing to import the enum
+    # These are here to allow use without the user needing to import the enum
     DEFAULT: ClassVar[CleanupMode] = CleanupMode.DEFAULT
     PRUNE: ClassVar[CleanupMode] = CleanupMode.PRUNE
     REPARENT: ClassVar[CleanupMode] = CleanupMode.REPARENT
