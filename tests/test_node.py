@@ -145,7 +145,7 @@ class TestNode(unittest.TestCase):
         assert branch_e2  # for the static type checker
 
         # e2 should now be a child of self.root
-        self.assertIs(branch_e2.root, self.root)
+        self.assertIs(branch_e2.trunk, self.root)
 
     def test_no_cleanup(self):
         ephemeral_data = {
@@ -178,7 +178,7 @@ class TestNode(unittest.TestCase):
         assert branch_e2  # for the static type checker
 
         # e1 should still exist and still be the parent of e2
-        self.assertIs(branch_e2.root, branch_e1)
+        self.assertIs(branch_e2.trunk, branch_e1)
         # e1 should be empty, or rather the weakref should return None
         self.assertIsNone(branch_e1.data)
 
