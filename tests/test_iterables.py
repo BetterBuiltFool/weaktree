@@ -54,7 +54,7 @@ branch3 = root.add_branch(test_data["3"])
 branch7 = branch3.add_branch(test_data["7"])
 
 
-class Test_NodeIterable(unittest.TestCase):
+class TestNodeIterable(unittest.TestCase):
 
     def setUp(self) -> None:
         self.iterable = NodeIterable(root)
@@ -110,7 +110,7 @@ class Test_NodeIterable(unittest.TestCase):
             previous_node = node
 
 
-class Test_ValueIterable(unittest.TestCase):
+class TestValueIterable(unittest.TestCase):
 
     def setUp(self) -> None:
         self.iterable = ValueIterable[TestObject](root)
@@ -133,7 +133,7 @@ class Test_ValueIterable(unittest.TestCase):
             self.assertIsInstance(value, TestObject)
 
 
-class Test_ItemIterable(unittest.TestCase):
+class TestItemIterable(unittest.TestCase):
 
     def setUp(self) -> None:
         self.iterable = ItemsIterable[TestObject](root)
