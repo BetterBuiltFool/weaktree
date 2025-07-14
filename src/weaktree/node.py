@@ -73,9 +73,22 @@ class WeakTreeNode(Generic[T]):
 
     # These are here to allow use without the user needing to import the enum
     DEFAULT: ClassVar[CleanupMode] = CleanupMode.DEFAULT
+    """
+    When the node cleans up, refer to the trunk's cleanup mode, or else prune if the
+    root is DEFAULT.
+    """
     PRUNE: ClassVar[CleanupMode] = CleanupMode.PRUNE
+    """
+    Trim the branches of the node when its data expires.
+    """
     REPARENT: ClassVar[CleanupMode] = CleanupMode.REPARENT
+    """
+    Move the branches to the node's trunk.
+    """
     NO_CLEANUP: ClassVar[CleanupMode] = CleanupMode.NO_CLEANUP
+    """
+    Leave the node alone when its data expires.
+    """
 
     def __init__(
         self,
@@ -91,8 +104,7 @@ class WeakTreeNode(Generic[T]):
         :param trunk: The previous node in the tree for the new node, defaults to None,
             which indicates a top-level node.
         :param cleanup_mode: An enum indicating how the tree should cleanup after
-            itself when the data reference expires, defaults to DEFAULT, which calls
-            upon the trunk node, or prune if the root is also DEFAULT.
+            itself when the data reference expires, defaults to DEFAULT
         :param callback: An optional additional callback function, called when the
             data reference expires. Defaults to None.
         """
@@ -167,8 +179,7 @@ class WeakTreeNode(Generic[T]):
 
         :param data: The data to be stored by the new WeakTreeNode
         :param cleanup_mode: An enum indicating how the tree should cleanup after
-            itself when the data reference expires, defaults to DEFAULT, which calls
-            upon the trunk node, or prune if the root is also DEFAULT.
+            itself when the data reference expires, defaults to DEFAULT
         :param callback: An optional additional callback function, called when the
             data reference expires. Defaults to None.
         :return: The newly created node.
