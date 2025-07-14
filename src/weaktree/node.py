@@ -65,9 +65,10 @@ def _get_cleanup_method(
 
 class WeakTreeNode(Generic[T]):
     """
-    An object that allows for the formation of data trees that don't form strong
-    references to its data. WeakTreeNodes can be configured to control the result when
-    the data in the reference dies.
+    Models data trees that don't form strong references to their data. WeakTreeNodes
+    can be configured to control their behavior when the data in the reference dies,
+    allowing the tree to be cleaned up by pruning the node's branches, moving them to
+    the node's trunk, or leaving the empty node alone.
     """
 
     # These are here to allow use without needing to import the enum
