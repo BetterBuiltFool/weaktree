@@ -44,10 +44,10 @@ def _reparent(node: WeakTreeNode[T]):
 
 def _get_cleanup_method(
     node: WeakTreeNode[T],
-    cleanup_method: CleanupMode,
+    cleanup_mode: CleanupMode,
 ) -> Callable[[WeakTreeNode], None]:
 
-    match cleanup_method:
+    match cleanup_mode:
         case CleanupMode.PRUNE:
             return _prune
         case CleanupMode.REPARENT:
