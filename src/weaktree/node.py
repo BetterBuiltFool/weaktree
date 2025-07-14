@@ -162,7 +162,7 @@ class WeakTreeNode(Generic[T]):
         Creates a new node as a child of the current node, with a weak reference to the
         passed value.
 
-        Returns the new isntance, so this can be chained without intermediate variables.
+        Returns the new instance, so this can be chained without intermediate variables.
 
         :param data: The data to be stored by the new WeakTreeNode
         :param cleanup_mode: An enum indicating how the tree should cleanup after
