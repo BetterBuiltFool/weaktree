@@ -64,14 +64,14 @@ class Test_NodeIterable(unittest.TestCase):
         queue = deque()
 
         for node in self.iterable.breadth():
-            no_root = node.root is None
-            queued_root = node.root in queue
+            no_root = node.trunk is None
+            queued_trunk = node.trunk in queue
 
-            self.assertTrue(no_root or queued_root)
+            self.assertTrue(no_root or queued_trunk)
             self.assertIsInstance(node, WeakTreeNode)
 
-            if queued_root:
-                while queue[0] is not node.root:
+            if queued_trunk:
+                while queue[0] is not node.trunk:
                     queue.popleft()
 
             queue.append(node)
@@ -82,30 +82,30 @@ class Test_NodeIterable(unittest.TestCase):
 
         for node in self.iterable.depth():
             # Determine if our node is top level, or a decendant of one in the stack
-            no_root = node.root is None
-            stack_root = node.root in stack
+            no_root = node.trunk is None
+            stack_trunk = node.trunk in stack
 
-            self.assertTrue(no_root or stack_root)
+            self.assertTrue(no_root or stack_trunk)
             self.assertIsInstance(node, WeakTreeNode)
 
-            if stack_root:
+            if stack_trunk:
                 # For a descendant, remove the chain until we get to the node's
                 # parent. If we end up out of order, this is what will cause our
                 # test to fail
-                while stack[-1] is not node.root:
+                while stack[-1] is not node.trunk:
                     stack.pop()
 
             stack.append(node)
 
-    def test_to_root(self) -> None:
+    def test_towards_root(self) -> None:
 
         iterable = NodeIterable(branch9)
 
         previous_node: WeakTreeNode | None = None
 
-        for node in iterable.to_root():
+        for node in iterable.towards_root():
             if previous_node:
-                self.assertIs(node, previous_node.root)
+                self.assertIs(node, previous_node.trunk)
                 self.assertIsInstance(node, WeakTreeNode)
             previous_node = node
 
@@ -126,10 +126,10 @@ class Test_ValueIterable(unittest.TestCase):
         for value in self.iterable.depth():
             self.assertIsInstance(value, TestObject)
 
-    def test_to_root(self) -> None:
+    def test_towards_root(self) -> None:
         iterable = ValueIterable[TestObject](branch9)
 
-        for value in iterable.to_root():
+        for value in iterable.towards_root():
             self.assertIsInstance(value, TestObject)
 
 
@@ -154,10 +154,10 @@ class Test_ItemIterable(unittest.TestCase):
             self.assertIsInstance(node, WeakTreeNode)
             self.assertIsInstance(value, TestObject)
 
-    def test_to_root(self) -> None:
+    def test_towards_root(self) -> None:
         iterable = ItemsIterable[TestObject](branch9)
 
-        for node, value in iterable.to_root():
+        for node, value in iterable.towards_root():
             self.assertIsInstance(node, WeakTreeNode)
             self.assertIsInstance(value, TestObject)
 
