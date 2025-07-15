@@ -29,7 +29,7 @@ def _idle(node: WeakTreeNode[Any]) -> None:
 
 def _prune(node: WeakTreeNode[Any]) -> None:
     if node.trunk:
-        node.trunk._branches.discard(node)
+        node.trunk._branches.pop(node, None)
     # This will allow the branch to unwind and be gc'd unless the user has another
     # reference to any of the nodes somehwere.
     node._branches.clear()
@@ -37,7 +37,7 @@ def _prune(node: WeakTreeNode[Any]) -> None:
 
 def _reparent(node: WeakTreeNode[Any]) -> None:
     if node.trunk:
-        node.trunk._branches.discard(node)
+        node.trunk._branches.pop(node, None)
     for subnode in node._branches.copy():
         subnode.trunk = node.trunk
 
@@ -126,7 +126,7 @@ class WeakTreeNode(Generic[T]):
         self._trunk: ref[WeakTreeNode[T]] | None = None
         self.trunk = trunk
 
-        self._branches: set[WeakTreeNode[T]] = set()
+        self._branches: dict[WeakTreeNode[T], None] = {}
 
         self._cleanup_mode: CleanupMode = cleanup_mode
 
@@ -135,7 +135,7 @@ class WeakTreeNode(Generic[T]):
         """
         A set of nodes that descend from the current node.
         """
-        return self._branches
+        return set(self._branches.keys())
 
     @property
     def cleanup_mode(self) -> CleanupMode:
@@ -166,10 +166,10 @@ class WeakTreeNode(Generic[T]):
     @trunk.setter
     def trunk(self, node: WeakTreeNode | None) -> None:
         if self.trunk:
-            self.trunk._branches.discard(self)
+            self.trunk._branches.pop(self)
         if node:
             self._trunk = ref(node)
-            node._branches.add(self)
+            node._branches[self] = None
         else:
             self._trunk = None
 
@@ -272,8 +272,6 @@ class TreeIterable(ABC, Generic[IterT]):
         """
         Provides a generator that performs a breadth-first traversal of the tree
         starting at the trunk node of the iterable.
-
-        Order is not guaranteed.
         """
         queue: deque[WeakTreeNode] = deque([self._trunk_node])
         while queue:
@@ -286,8 +284,6 @@ class TreeIterable(ABC, Generic[IterT]):
         """
         Provides a generator that performs a depth-first traversal of the tree,
         starting from the trunk node of the iterable.
-
-        Order is not guaranteed.
         """
         stack: list[WeakTreeNode] = [self._trunk_node]
         while stack:
