@@ -272,8 +272,6 @@ class TreeIterable(ABC, Generic[IterT]):
         """
         Provides a generator that performs a breadth-first traversal of the tree
         starting at the trunk node of the iterable.
-
-        Order is not guaranteed.
         """
         queue: deque[WeakTreeNode] = deque([self._trunk_node])
         while queue:
@@ -286,8 +284,6 @@ class TreeIterable(ABC, Generic[IterT]):
         """
         Provides a generator that performs a depth-first traversal of the tree,
         starting from the trunk node of the iterable.
-
-        Order is not guaranteed.
         """
         stack: list[WeakTreeNode] = [self._trunk_node]
         while stack:
