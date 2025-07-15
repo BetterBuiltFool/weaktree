@@ -3,16 +3,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import deque
 from enum import auto, Enum
-from typing import Generic, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from weakref import ref
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from typing import Any, ClassVar
-
-
-T = TypeVar("T")
-IterT = TypeVar("IterT")
 
 
 class CleanupMode(Enum):
@@ -63,7 +59,7 @@ def _get_cleanup_method(
             return _get_cleanup_method(trunk, trunk._cleanup_mode)
 
 
-class WeakTreeNode(Generic[T]):
+class WeakTreeNode[T]:
     """
     Models data trees that don't form strong references to their data. WeakTreeNodes
     can be configured to control their behavior when the data in the reference dies,
@@ -256,7 +252,7 @@ class WeakTreeNode(Generic[T]):
         return f"WeakTreeNode({self.data}, {self.trunk})"
 
 
-class TreeIterable(ABC, Generic[IterT]):
+class TreeIterable[IterT, T](ABC):
     """
     Generic base class for iterating over trees.
     """
@@ -309,7 +305,7 @@ class TreeIterable(ABC, Generic[IterT]):
         yield from self.breadth()
 
 
-class NodeIterable(TreeIterable[WeakTreeNode]):
+class NodeIterable[T](TreeIterable[WeakTreeNode, T]):
     """
     Variant of TreeIterator that provides the nodes of the tree themselves when
     iterated over.
@@ -319,7 +315,7 @@ class NodeIterable(TreeIterable[WeakTreeNode]):
         return node
 
 
-class ValueIterable(TreeIterable[T | None]):
+class ValueIterable[T](TreeIterable[T | None, T]):
     """
     Variant of TreeIterator that provides the values of the nodes of the tree when
     iterated over.
@@ -329,7 +325,7 @@ class ValueIterable(TreeIterable[T | None]):
         return node.data
 
 
-class ItemsIterable(TreeIterable[tuple[WeakTreeNode[T], T | None]]):
+class ItemsIterable[T](TreeIterable[tuple[WeakTreeNode[T], T | None], T]):
     """
     Variant of TreeIterable that provides pairs of nodes with their values when
     iterated over.

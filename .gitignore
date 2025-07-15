@@ -207,3 +207,4 @@ marimo/_lsp/
 __marimo__/
 manual_testing.py
 weaktree.code-workspace
+.vscode/settings.json
