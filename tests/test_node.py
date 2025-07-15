@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-import pathlib
-import sys
 import unittest
 from weakref import ref
 
-sys.path.append(str(pathlib.Path.cwd()))
-
-from src.weaktree.node import (  # noqa: E402
+from weaktree.node import (
     WeakTreeNode,
     ItemsIterable,
     NodeIterable,
