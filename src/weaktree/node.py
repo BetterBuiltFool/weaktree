@@ -138,6 +138,14 @@ class WeakTreeNode(Generic[T]):
         return self._branches
 
     @property
+    def cleanup_mode(self) -> CleanupMode:
+        return self._cleanup_mode
+
+    @cleanup_mode.setter
+    def cleanup_mode(self, mode: CleanupMode) -> None:
+        self._cleanup_mode = mode
+
+    @property
     def data(self) -> T | None:
         """
         The value stored by the node.
