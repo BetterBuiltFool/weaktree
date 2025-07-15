@@ -8,7 +8,7 @@ from weakref import ref
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import ClassVar
+    from typing import Any, ClassVar
 
 
 T = TypeVar("T")
@@ -22,12 +22,12 @@ class CleanupMode(Enum):
     NO_CLEANUP = auto()
 
 
-def _idle(node: WeakTreeNode[T]):
+def _idle(node: WeakTreeNode[Any]):
     # Intentionally do nothing.
     pass
 
 
-def _prune(node: WeakTreeNode[T]):
+def _prune(node: WeakTreeNode[Any]):
     if node.trunk:
         node.trunk._branches.discard(node)
     # This will allow the branch to unwind and be gc'd unless the user has another
@@ -35,7 +35,7 @@ def _prune(node: WeakTreeNode[T]):
     node._branches.clear()
 
 
-def _reparent(node: WeakTreeNode[T]):
+def _reparent(node: WeakTreeNode[Any]):
     if node.trunk:
         node.trunk._branches.discard(node)
     for subnode in node._branches.copy():
@@ -43,7 +43,7 @@ def _reparent(node: WeakTreeNode[T]):
 
 
 def _get_cleanup_method(
-    node: WeakTreeNode[T],
+    node: WeakTreeNode[Any],
     cleanup_mode: CleanupMode,
 ) -> Callable[[WeakTreeNode], None]:
 
