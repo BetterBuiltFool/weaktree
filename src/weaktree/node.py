@@ -95,7 +95,7 @@ class WeakTreeNode(Generic[T]):
         data: T,
         trunk: WeakTreeNode | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
-        callback: Callable | None = None,
+        callback: Callable[[ref], None] | None = None,
     ) -> None:
         """
         Create a new node for a weakly-referencing tree.
@@ -169,7 +169,7 @@ class WeakTreeNode(Generic[T]):
         self,
         data: T,
         cleanup_mode: CleanupMode = DEFAULT,
-        callback: Callable | None = None,
+        callback: Callable[[ref], None] | None = None,
     ) -> WeakTreeNode[T]:
         """
         Creates a new node as a child of the current node, with a weak reference to the
