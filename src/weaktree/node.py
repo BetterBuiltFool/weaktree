@@ -22,12 +22,12 @@ class CleanupMode(Enum):
     NO_CLEANUP = auto()
 
 
-def _idle(node: WeakTreeNode[Any]):
+def _idle(node: WeakTreeNode[Any]) -> None:
     # Intentionally do nothing.
     pass
 
 
-def _prune(node: WeakTreeNode[Any]):
+def _prune(node: WeakTreeNode[Any]) -> None:
     if node.trunk:
         node.trunk._branches.discard(node)
     # This will allow the branch to unwind and be gc'd unless the user has another
@@ -35,7 +35,7 @@ def _prune(node: WeakTreeNode[Any]):
     node._branches.clear()
 
 
-def _reparent(node: WeakTreeNode[Any]):
+def _reparent(node: WeakTreeNode[Any]) -> None:
     if node.trunk:
         node.trunk._branches.discard(node)
     for subnode in node._branches.copy():
@@ -110,7 +110,7 @@ class WeakTreeNode(Generic[T]):
         """
 
         # Create a cleanup callback for our data reference
-        def _remove(wr: ref, selfref=ref(self)):
+        def _remove(wr: ref, selfref=ref(self)) -> None:
             # selfref gives us access to the instance within the callback without
             # keeping it alive.
             self = selfref()
@@ -148,7 +148,7 @@ class WeakTreeNode(Generic[T]):
         return None
 
     @trunk.setter
-    def trunk(self, node: WeakTreeNode | None):
+    def trunk(self, node: WeakTreeNode | None) -> None:
         if self.trunk:
             self.trunk._branches.discard(self)
         if node:
