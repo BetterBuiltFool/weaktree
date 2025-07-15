@@ -138,6 +138,22 @@ class WeakTreeNode(Generic[T]):
         return self._branches
 
     @property
+    def cleanup_mode(self) -> CleanupMode:
+        return self._cleanup_mode
+
+    @cleanup_mode.setter
+    def cleanup_mode(self, mode: CleanupMode) -> None:
+        self._cleanup_mode = mode
+
+    @property
+    def data(self) -> T | None:
+        """
+        The value stored by the node.
+        """
+        # Dereference our data so the real object can be used.
+        return self._data()
+
+    @property
     def trunk(self) -> WeakTreeNode[T] | None:
         """
         A node that sits higher in the tree than the current node.
@@ -156,14 +172,6 @@ class WeakTreeNode(Generic[T]):
             node._branches.add(self)
         else:
             self._trunk = None
-
-    @property
-    def data(self) -> T | None:
-        """
-        The value stored by the node.
-        """
-        # Dereference our data so the real object can be used.
-        return self._data()
 
     def add_branch(
         self,
