@@ -8,7 +8,7 @@ from weakref import ref
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import ClassVar
+    from typing import Any, ClassVar
 
 
 T = TypeVar("T")
@@ -22,12 +22,12 @@ class CleanupMode(Enum):
     NO_CLEANUP = auto()
 
 
-def _idle(node: WeakTreeNode[T]):
+def _idle(node: WeakTreeNode[Any]) -> None:
     # Intentionally do nothing.
     pass
 
 
-def _prune(node: WeakTreeNode[T]):
+def _prune(node: WeakTreeNode[Any]) -> None:
     if node.trunk:
         node.trunk._branches.discard(node)
     # This will allow the branch to unwind and be gc'd unless the user has another
@@ -35,7 +35,7 @@ def _prune(node: WeakTreeNode[T]):
     node._branches.clear()
 
 
-def _reparent(node: WeakTreeNode[T]):
+def _reparent(node: WeakTreeNode[Any]) -> None:
     if node.trunk:
         node.trunk._branches.discard(node)
     for subnode in node._branches.copy():
@@ -43,7 +43,7 @@ def _reparent(node: WeakTreeNode[T]):
 
 
 def _get_cleanup_method(
-    node: WeakTreeNode[T],
+    node: WeakTreeNode[Any],
     cleanup_mode: CleanupMode,
 ) -> Callable[[WeakTreeNode], None]:
 
@@ -95,7 +95,7 @@ class WeakTreeNode(Generic[T]):
         data: T,
         trunk: WeakTreeNode | None = None,
         cleanup_mode: CleanupMode = DEFAULT,
-        callback: Callable | None = None,
+        callback: Callable[[ref], None] | None = None,
     ) -> None:
         """
         Create a new node for a weakly-referencing tree.
@@ -110,7 +110,7 @@ class WeakTreeNode(Generic[T]):
         """
 
         # Create a cleanup callback for our data reference
-        def _remove(wr: ref, selfref=ref(self)):
+        def _remove(wr: ref, selfref=ref(self)) -> None:
             # selfref gives us access to the instance within the callback without
             # keeping it alive.
             self = selfref()
@@ -148,7 +148,7 @@ class WeakTreeNode(Generic[T]):
         return None
 
     @trunk.setter
-    def trunk(self, node: WeakTreeNode | None):
+    def trunk(self, node: WeakTreeNode | None) -> None:
         if self.trunk:
             self.trunk._branches.discard(self)
         if node:
@@ -169,7 +169,7 @@ class WeakTreeNode(Generic[T]):
         self,
         data: T,
         cleanup_mode: CleanupMode = DEFAULT,
-        callback: Callable | None = None,
+        callback: Callable[[ref], None] | None = None,
     ) -> WeakTreeNode[T]:
         """
         Creates a new node as a child of the current node, with a weak reference to the
