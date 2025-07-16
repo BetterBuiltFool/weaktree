@@ -1,0 +1,20 @@
+[build-system]
+requires = [ "setuptools>=41", "wheel", ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "weaktree"
+version = "0.1.0"
+authors = [
+    { name="BetterBuiltFool", email="betterbuiltfool@gmail.com"}
+]
+description = "A self-pruning, weak-referencing tree structure."
+readme = "README.md"
+requires-python = ">=3.12.4"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Utilities",
+    "Typing :: Typed"
+]
