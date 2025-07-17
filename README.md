@@ -41,7 +41,7 @@
 <h3 align="center">Weaktree</h3>
 
   <p align="center">
-    Model Trees Without Thinking About Lifetimes
+    Model Data Trees Without Thinking About Lifetimes
     <br />
     <a href="https://github.com/BetterBuiltFool/weaktree"><strong>Explore the docs »</strong></a>
     <br />
@@ -95,7 +95,7 @@
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 -->
 
-Weaktree provide tree nodes that don't make strong references to their data, and can clean themselves up when their data expires. WeakTreeNodes also provide several handy iteration method for easy traversal.
+Weaktree provides tree nodes that don't make strong references to their data, and can clean themselves up when their data expires. WeakTreeNodes also provide several handy iteration method for easy traversal.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -153,13 +153,13 @@ Trees can also be reorganized by assigning to the `trunk` property.
 
 ### Cleanup
 
-WeakTreeNodes possesses the `cleanup_mode` property. This is used to determine behavior when a Node's data reference expires. These values are accessible as constants in the WeakTreeNode class.
+WeakTreeNodes possess the `cleanup_mode` property. This is used to how the tree modifies itself when a Node's data reference expires. These values are accessible as constants in the WeakTreeNode class.
 
 1. Prune
 
 When the node expires, all nodes further down from it are removed from the tree.
 
-Note: If there are strong references to those nodes elsewhere, they will be kept alive and the branches will not be fully unwinded. However, they will no longer be part of the tree.
+Note: If there are strong references to those nodes elsewhere, they will be kept alive and the branches will not be fully unwinded. However, they will no longer be reachable from other nodes in the tree.
 
 2. Reparent
 
@@ -174,31 +174,33 @@ When a node expires, leave the tree intact. Instead, the node will be "empty" an
 A node will do whatever its trunk node would do when it expires. For root nodes, this will be `prune`.
 
 
+Additionally, Nodes can be assigned custom callbacks to allow further customization of cleanup behavior.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Tree Iteration
 
-WeakTreeNodes provide several features to simplify traversal. All iteration follows insertion order of the branch nodes.
+WeakTreeNodes provide several features to simplify traversal. All branch iteration follows insertion order of the branch nodes.
 
 You can control the type of data provided in the iteration:
 
-1. By Nodes
+#### By Nodes
 
 By using WeakTreeNode.nodes() or by directly iteration over the tree, you can traverse over the nodes themselves.
 This is comparable to the `keys()` method of dictionaries.
 
-2. By Values
+#### By Values
 
 By using WeakTreeNode.values(), you can iterate over the values of the nodes. This is comparable to the method of the same name in dictionaries.
 
-3. By Items
+#### By Items
 
 WeakTreeNode.items() provides an iterable that gives the pairs of nodes and values. This is comparable to the method of the same name in dictionaries.
 
 
 You can also control _how_ the iteration traverses the tree.
 
-1. By Breadth
+#### By Breadth
 
 By using the `breadth()` method of any iterable, or directly iterating over one, you can specify that the traversal should happen in a breadth-first order, i.e. all nodes of the same level in the hierarchy are processed before moving on to the next level.
 
@@ -217,7 +219,7 @@ for node in root.nodes().breadth():  # <- Same as `for node in root:`
 
 ```
 
-2. By Depth
+#### By Depth
 
 By using the `depth()` method of any iterable, you can specify that the traversal should happen in a dpeth-first order, i.e. branches are followed to their furthest reaches before moving on to side branches.
 
@@ -236,7 +238,7 @@ for node in root.nodes().depth():
 
 ```
 
-3. Towards the Root
+#### Towards the Root
 
 By using the `towards_root()` method of any iterable, you can iterate towards the root of the tree.
 
@@ -261,59 +263,87 @@ for node in two_fish_node.nodes().towards_root():
 
 ## API Reference
 
-### class weaktree.WeakTreeNode(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None)
+```python
+class weaktree.WeakTreeNode(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None)
+```
 
 The unit of a weak tree. Stores a weak reference to its data, and cleans itself up per the cleanup mode when that data expires. If a callback is provided, that will be called when the reference expires as well.
 
-### method __init__(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None) -> None
+```python
+method __init__(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None) -> None
+```
 
 Creates a new WeakTreeNode, storing the passed _data_, and as a branch of _trunk_, if trunk is provided. Optionally, cleanup mode can be specified to determine how the node will behave when the data expires. Additionally, the optional callback can allow further customization of cleanup behavior.
 
-### property branches: set\[WeakTreeNode]
+```python
+property branches: set[WeakTreeNode]
+```
 
 Read-only.
 
 A set representing any branches that descend from the node. 
 
-### property cleanup_mode: CleanupMode
+```python
+property cleanup_mode: CleanupMode
+```
 
 An enum value that determines how the node will clenaup after itself when its data expires.
 
-### property data: Any | None
+```python
+property data: Any | None
+```
 
 Read-only.
 
 The stored data. When called, dereferences and returns either a strong reference to the data, or None if the data has expired.
 
-### property trunk: WeakTreeNode | Node
+```python
+property trunk: WeakTreeNode | Node
+```
 
 The previous node in the tree. If `None`, the node is considered a root.
 
-### add_branch(data: Any, cleanup_mode: CleanupMode, callback: Callable | None) -> WeakTreeNode
+```python
+add_branch(data: Any, cleanup_mode: CleanupMode, callback: Callable | None) -> WeakTreeNode
+```
 
 Creates a new node as a branch of the calling node.
 
-### breadth() -> Iterator\[WeakTreeNode]
+```python
+breadth() -> Iterator[WeakTreeNode]
+```
 
+```python
 Returns an iterator that will traverse the tree by nodes, in a breadth-first pattern, starting at the calling node. Branches will be traversed in insertion order.
+```
 
-### depth() -> Iterator\[WeakTreeNode]
+```python
+depth() -> Iterator[WeakTreeNode]
+```
 
 Returns an iterator that will traverse the tree by nodes, in a depth-first pattern, starting at the calling node. Branches will be traversed in insertion order.
 
-### towards_root() -> Iterator\[WeakTreeNode]
+```python
+towards_root() -> Iterator[WeakTreeNode]
+```
 
 Returns an iterator that will traverse the tree by nodes, up to the root, starting at the calling node.
 
-### nodes() -> NodeIterable
+```python
+nodes() -> NodeIterable
+```
 
 Creates an iterable that allows for traversing the tree by nodes. Has the same breadth(), depth(), and towards_root() methods as WeakTreeNode
 
-### values() -> ValueIterable
+```python
+values() -> ValueIterable
+```
 
 Creates an iterable that allows for traversing the tree by data values. Has the same breadth(), depth(), and towards_root() methods as WeakTreeNode
 
-### items() -> ItemsIterable
+```python
+items() -> ItemsIterable
+```
 
 Creates an iterable that allows for traversing the tree by node/value pairs. Has the same breadth(), depth(), and towards_root() methods as WeakTreeNode
 
