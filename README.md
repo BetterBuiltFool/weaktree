@@ -289,6 +289,23 @@ The stored data. When called, dereferences and returns either a strong reference
 
 The previous node in the tree. If `None`, the node is considered a root.
 
+### add_branch(data: Any, cleanup_mode: CleanupMode, callback: Callable | None) -> WeakTreeNode
+
+Creates a new node as a branch of the calling node.
+
+### breadth() -> Iterator\[WeakTreeNode]
+
+Returns an iterator that will traverse the tree by nodes, in a breadth-first pattern, starting at the calling node. Branches will be traversed in insertion order.
+
+### depth() -> Iterator\[WeakTreeNode]
+
+Returns an iterator that will traverse the tree by nodes, in a depth-first pattern, starting at the calling node. Branches will be traversed in insertion order.
+
+### towards_root() -> Iterator\[WeakTreeNode]
+
+Returns an iterator that will traverse the tree by nodes, up to the root, starting at the calling node.
+
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
