@@ -202,9 +202,40 @@ You can control the type of data provided in the iteration:
 By using WeakTreeNode.nodes() or by directly iteration over the tree, you can traverse over the nodes themselves.
 This is comparable to the `keys()` method of dictionaries.
 
+Example:
+```python
+root = WeakTreeNode(some_object)
+
+root.add_branch(one_fish).add_branch(two_fish)
+
+root.add_branch(red_fish).add_branch(blue_fish)
+
+for node in root.nodes():  # <- Same as `for node in root:`
+    print(node)
+
+    # Expected order: Node(some_object), Node(one_fish), Node(red_fish), Node(two_fish), Node(blue_fish)
+
+```
+
 #### By Values
 
 By using WeakTreeNode.values(), you can iterate over the values of the nodes. This is comparable to the method of the same name in dictionaries.
+
+Example:
+```python
+root = WeakTreeNode(some_object)
+
+root.add_branch(one_fish).add_branch(two_fish)
+
+root.add_branch(red_fish).add_branch(blue_fish)
+
+for node in root.values():
+    print(node)
+
+    # Expected output: some_object, one_fish, red_fish, two_fish, blue_fish
+
+```
+
 
 #### By Items
 
