@@ -324,9 +324,9 @@ Creates an iterable that allows for traversing the tree by node/value pairs. Has
 
 
 <!-- ROADMAP -->
-## Roadmap
+<!-- ## Roadmap
 
-- [ ] (Eternal) Improve the renderer. Faster rendering means more renderables!
+- [ ] (Eternal) Improve the renderer. Faster rendering means more renderables! -->
 
 <!--
 - [ ] Feature 2
