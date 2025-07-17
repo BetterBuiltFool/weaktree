@@ -73,16 +73,16 @@
     </li>
     <li><a href="#usage">Usage</a></li>
       <ul>
-        <li><a href="#using-game">Using Game</a></li>
-        <li><a href="#loop-phases">Loop Phases</a></li>
-        <li><a href="#entities-and-renderables">Entities and Renderables</a></li>
-        <li><a href="#forget-about-screen-space">Forget About Screen Space</a></li>
+        <li><a href="#creating-weaktrees">Creating WeakTrees</a></li>
+        <li><a href="#cleanup">Cleanup</a></li>
+        <li><a href="#tree-iteration">Tree Iteration</a></li>
       </ul>
-    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#api-reference">API Reference</a></li>
+    <!-- <li><a href="#roadmap">Roadmap</a></li> -->
     <!--<li><a href="#contributing">Contributing</a></li>-->
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
+    <!-- <li><a href="#acknowledgments">Acknowledgments</a></li> -->
   </ol>
 </details>
 
@@ -153,7 +153,7 @@ Trees can also be reorganized by assigning to the `trunk` property.
 
 ### Cleanup
 
-WeakTreeNodes possess the `cleanup_mode` property. This is used to determine behavior when a Node's data reference expires. These values are accessible as constants in the WeakTreeNode class.
+WeakTreeNodes possesses the `cleanup_mode` property. This is used to determine behavior when a Node's data reference expires. These values are accessible as constants in the WeakTreeNode class.
 
 1. Prune
 
