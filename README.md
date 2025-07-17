@@ -185,7 +185,9 @@ When a node expires, leave the tree intact. Instead, the node will be "empty" an
 A node will do whatever its trunk node would do when it expires. For root nodes, this will be `prune`.
 
 
-Additionally, Nodes can be assigned custom callbacks to allow further customization of cleanup behavior.
+#### Callbacks
+
+WeakTreeNodes feature an optional callback parameter for each node. The callback must take a weakreference object as its parameter. This will be the reference to the data value, just before it expires.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
