@@ -305,6 +305,19 @@ Returns an iterator that will traverse the tree by nodes, in a depth-first patte
 
 Returns an iterator that will traverse the tree by nodes, up to the root, starting at the calling node.
 
+### nodes() -> NodeIterable
+
+Creates an iterable that allows for traversing the tree by nodes. Has the same breadth(), depth(), and towards_root() methods as WeakTreeNode
+
+### values() -> ValueIterable
+
+Creates an iterable that allows for traversing the tree by data values. Has the same breadth(), depth(), and towards_root() methods as WeakTreeNode
+
+### items() -> ItemsIterable
+
+Creates an iterable that allows for traversing the tree by node/value pairs. Has the same breadth(), depth(), and towards_root() methods as WeakTreeNode
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
