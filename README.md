@@ -41,7 +41,7 @@
 <h3 align="center">Weaktree</h3>
 
   <p align="center">
-    Model Data Trees Without Thinking About Lifetimes
+    Model Data Trees Without Worrying About Lifetimes
     <br />
     <a href="https://github.com/BetterBuiltFool/weaktree"><strong>Explore the docs »</strong></a>
     <br />
@@ -74,6 +74,7 @@
     <li><a href="#usage">Usage</a></li>
       <ul>
         <li><a href="#creating-weaktrees">Creating WeakTrees</a></li>
+        <li><a href="#accessing-data">Accessing Data</a></li>
         <li><a href="#cleanup">Cleanup</a></li>
         <li><a href="#tree-iteration">Tree Iteration</a></li>
       </ul>
@@ -148,6 +149,16 @@ root.add_branch(third_object).add_branch(fourth_object).add_branch(fifth_object)
 ```
 
 Trees can also be reorganized by assigning to the `trunk` property.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Accessing Data
+
+The stored data of a Node is accessed by the `data` property. This will dereference the weakref, and return either the data object, or None if the object has expired.
+
+Alternatively, if iterating over the tree by the `values()` method, the iterand will be the value from `data`.
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
