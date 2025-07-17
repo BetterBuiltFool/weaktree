@@ -261,13 +261,33 @@ for node in two_fish_node.nodes().towards_root():
 
 ## API Reference
 
-    class weaktree.WeakTreeNode(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None)
+### class weaktree.WeakTreeNode(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None)
 
 The unit of a weak tree. Stores a weak reference to its data, and cleans itself up per the cleanup mode when that data expires. If a callback is provided, that will be called when the reference expires as well.
 
-    method __init__(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None) -> None
+### method __init__(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None) -> None
 
 Creates a new WeakTreeNode, storing the passed _data_, and as a branch of _trunk_, if trunk is provided. Optionally, cleanup mode can be specified to determine how the node will behave when the data expires. Additionally, the optional callback can allow further customization of cleanup behavior.
+
+### property branches: set\[WeakTreeNode]
+
+Read-only.
+
+A set representing any branches that descend from the node. 
+
+### property cleanup_mode: CleanupMode
+
+An enum value that determines how the node will clenaup after itself when its data expires.
+
+### property data: Any | None
+
+Read-only.
+
+The stored data. When called, dereferences and returns either a strong reference to the data, or None if the data has expired.
+
+### property trunk: WeakTreeNode | Node
+
+The previous node in the tree. If `None`, the node is considered a root.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
