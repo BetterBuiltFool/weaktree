@@ -166,6 +166,33 @@ class TestNode(unittest.TestCase):
         # e1 should be empty, or rather the weakref should return None
         self.assertIsNone(branch_e1.data)
 
+    def test_data_setter(self):
+
+        _, branch_e2_wr, branch_e3_wr = self.setup_ephemeral_data()
+
+        replacement_data = TestObject("Replaced")
+
+        branch_e2 = branch_e2_wr()
+        assert branch_e2  # for the static type checker
+
+        branch_e1 = branch_e2.trunk
+        assert branch_e1
+
+        del branch_e2
+
+        branch_e1.data = replacement_data
+
+        self.assertIsNotNone(branch_e1.data)
+
+        del replacement_data
+
+        # Ensure the data has expired
+        self.assertIsNone(branch_e1.data)
+
+        # Ensure our branches have dissolved
+        self.assertIsNone(branch_e2_wr())
+        self.assertIsNone(branch_e3_wr())
+
 
 if __name__ == "__main__":
     unittest.main()
