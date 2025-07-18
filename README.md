@@ -166,21 +166,21 @@ Alternatively, if iterating over the tree by the `values()` method, the iterand 
 
 WeakTreeNodes possess the `cleanup_mode` property. This is used to how the tree modifies itself when a Node's data reference expires. These values are accessible as constants in the WeakTreeNode class.
 
-1. Prune
+#### Prune
 
-When the node expires, all nodes further down from it are removed from the tree.
+When the node expires, all descending nodes are removed from the tree.
 
-Note: If there are strong references to those nodes elsewhere, they will be kept alive and the branches will not be fully unwinded. However, they will no longer be reachable from other nodes in the tree.
+Note: If there are strong references to those nodes elsewhere, they will be kept alive and the branches will not be fully unwound. However, they will no longer be reachable from other nodes in the tree.
 
-2. Reparent
+#### Reparent
 
-When the node expires, shift its branches up to its trunk. All lower nodes will be shifted up in the hierarchy.
+When the node expires, shift its branches up to its trunk. All descending nodes will be shifted up in the hierarchy.
 
-3. No cleanup
+#### No cleanup
 
 When a node expires, leave the tree intact. Instead, the node will be "empty" and report a value of `None`.
 
-4. Default
+#### Default
 
 A node will do whatever its trunk node would do when it expires. For root nodes, this will be `prune`.
 
@@ -311,7 +311,7 @@ for node in two_fish_node.nodes().towards_root():
 class weaktree.WeakTreeNode(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None)
 ```
 
-The unit of a weak tree. Stores a weak reference to its data, and cleans itself up per the cleanup mode when that data expires. If a callback is provided, that will be called when the reference expires as well.
+The base unit of a weak tree. Stores a weak reference to its data, and cleans itself up per the cleanup mode when that data expires. If a callback is provided, that will be called when the reference expires as well.
 
 ```python
 method __init__(data: Any, trunk: WeakTreeNode | None, cleanup_mode: CleanupMode, callback: Callable | None) -> None
@@ -355,9 +355,8 @@ Creates a new node as a branch of the calling node.
 breadth() -> Iterator[WeakTreeNode]
 ```
 
-```python
 Returns an iterator that will traverse the tree by nodes, in a breadth-first pattern, starting at the calling node. Branches will be traversed in insertion order.
-```
+
 
 ```python
 depth() -> Iterator[WeakTreeNode]
@@ -406,9 +405,9 @@ Creates an iterable that allows for traversing the tree by node/value pairs. Has
     - [ ] Nested Feature
 -->
 
-See the [open issues](https://github.com/BetterBuiltFool/weaktree/issues) for a full list of proposed features (and known issues).
+<!-- See the [open issues](https://github.com/BetterBuiltFool/weaktree/issues) for a full list of proposed features (and known issues). -->
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 
