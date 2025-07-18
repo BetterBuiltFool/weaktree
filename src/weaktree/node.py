@@ -105,19 +105,10 @@ class WeakTreeNode[T]:
             data reference expires. Defaults to None.
         """
 
-        # Create a cleanup callback for our data reference
-        def _remove(wr: ref, selfref=ref(self)) -> None:
-            # selfref gives us access to the instance within the callback without
-            # keeping it alive.
-            self = selfref()
-            # It's fine to keep our user callback alive, though, it shouldn't be bound
-            # to anything.
-            if callback:
-                callback(wr)
-            if self:
-                _get_cleanup_method(self, self._cleanup_mode)(self)
+        self._callback = callback
 
-        self._data = ref(data, _remove)
+        self._data: ref[T]
+        self.data = data
 
         self._trunk: ref[WeakTreeNode[T]] | None = None
         self.trunk = trunk
@@ -148,6 +139,23 @@ class WeakTreeNode[T]:
         """
         # Dereference our data so the real object can be used.
         return self._data()
+
+    @data.setter
+    def data(self, data: T) -> None:
+
+        # Create a cleanup callback for our data reference
+        def _remove(wr: ref, selfref=ref(self), callback=self._callback) -> None:
+            # selfref gives us access to the instance within the callback without
+            # keeping it alive.
+            self = selfref()
+            # It's fine to keep our user callback alive, though, it shouldn't be bound
+            # to anything.
+            if callback:
+                callback(wr)
+            if self:
+                _get_cleanup_method(self, self._cleanup_mode)(self)
+
+        self._data = ref(data, _remove)
 
     @property
     def trunk(self) -> WeakTreeNode[T] | None:
