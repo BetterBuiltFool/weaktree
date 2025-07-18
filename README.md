@@ -337,8 +337,6 @@ An enum value that determines how the node will clenaup after itself when its da
 property data: Any | None
 ```
 
-Read-only.
-
 The stored data. When called, dereferences and returns either a strong reference to the data, or None if the data has expired.
 
 ```python
