@@ -4,6 +4,7 @@ import unittest
 from weakref import ref
 
 from weaktree.node import (
+    CleanupMode,
     WeakTreeNode,
     ItemsIterable,
     NodeIterable,
@@ -85,20 +86,27 @@ class TestNode(unittest.TestCase):
 
         self.assertTrue(callback_ran)
 
-    def test_prune(self):
+    def setup_ephemeral_data(
+        self,
+        cleanup_mode: CleanupMode = WeakTreeNode.DEFAULT,
+    ) -> tuple[dict[str, TestObject], ref[WeakTreeNode], ref[WeakTreeNode]]:
         ephemeral_data = {
             "1": TestObject("E1"),
             "2": TestObject("E2"),
             "3": TestObject("E3"),
         }
 
-        branch_e1 = WeakTreeNode(ephemeral_data["1"], self.root)
+        branch_e1 = WeakTreeNode(ephemeral_data["1"], self.root, cleanup_mode)
         branch_e2 = branch_e1.add_branch(ephemeral_data["2"])
         branch_e3_wr = ref(branch_e2.add_branch(ephemeral_data["3"]))
 
         branch_e2_wr = ref(branch_e2)
 
-        del branch_e2  # Ensure there's no strong reference to e2
+        return ephemeral_data, branch_e2_wr, branch_e3_wr
+
+    def test_prune(self):
+
+        ephemeral_data, branch_e2_wr, branch_e3_wr = self.setup_ephemeral_data()
 
         # Ensure our nodes exist
         self.assertIsNotNone(branch_e2_wr())
@@ -111,21 +119,10 @@ class TestNode(unittest.TestCase):
         self.assertIsNone(branch_e3_wr())
 
     def test_reparent(self):
-        ephemeral_data = {
-            "1": TestObject("E1"),
-            "2": TestObject("E2"),
-            "3": TestObject("E3"),
-        }
 
-        branch_e1 = WeakTreeNode(
-            ephemeral_data["1"], self.root, cleanup_mode=WeakTreeNode.REPARENT
+        ephemeral_data, branch_e2_wr, branch_e3_wr = self.setup_ephemeral_data(
+            WeakTreeNode.REPARENT
         )
-        branch_e2 = branch_e1.add_branch(ephemeral_data["2"])
-        branch_e3_wr = ref(branch_e2.add_branch(ephemeral_data["3"]))
-
-        branch_e2_wr = ref(branch_e2)
-
-        del branch_e2  # Ensure there's no strong reference to e2
 
         # Ensure our nodes exist
         self.assertIsNotNone(branch_e2_wr())
@@ -144,21 +141,10 @@ class TestNode(unittest.TestCase):
         self.assertIs(branch_e2.trunk, self.root)
 
     def test_no_cleanup(self):
-        ephemeral_data = {
-            "1": TestObject("E1"),
-            "2": TestObject("E2"),
-            "3": TestObject("E3"),
-        }
 
-        branch_e1 = WeakTreeNode(
-            ephemeral_data["1"], self.root, cleanup_mode=WeakTreeNode.NO_CLEANUP
+        ephemeral_data, branch_e2_wr, branch_e3_wr = self.setup_ephemeral_data(
+            WeakTreeNode.NO_CLEANUP
         )
-        branch_e2 = branch_e1.add_branch(ephemeral_data["2"])
-        branch_e3_wr = ref(branch_e2.add_branch(ephemeral_data["3"]))
-
-        branch_e2_wr = ref(branch_e2)
-
-        del branch_e2  # Ensure there's no strong reference to e2
 
         # Ensure our nodes exist
         self.assertIsNotNone(branch_e2_wr())
@@ -174,9 +160,38 @@ class TestNode(unittest.TestCase):
         assert branch_e2  # for the static type checker
 
         # e1 should still exist and still be the parent of e2
-        self.assertIs(branch_e2.trunk, branch_e1)
+        branch_e1 = branch_e2.trunk
+        self.assertIsNotNone(branch_e1)
+        assert isinstance(branch_e1, WeakTreeNode)
         # e1 should be empty, or rather the weakref should return None
         self.assertIsNone(branch_e1.data)
+
+    def test_data_setter(self):
+
+        _, branch_e2_wr, branch_e3_wr = self.setup_ephemeral_data()
+
+        replacement_data = TestObject("Replaced")
+
+        branch_e2 = branch_e2_wr()
+        assert branch_e2  # for the static type checker
+
+        branch_e1 = branch_e2.trunk
+        assert branch_e1
+
+        del branch_e2
+
+        branch_e1.data = replacement_data
+
+        self.assertIsNotNone(branch_e1.data)
+
+        del replacement_data
+
+        # Ensure the data has expired
+        self.assertIsNone(branch_e1.data)
+
+        # Ensure our branches have dissolved
+        self.assertIsNone(branch_e2_wr())
+        self.assertIsNone(branch_e3_wr())
 
 
 if __name__ == "__main__":
