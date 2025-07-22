@@ -18,6 +18,8 @@ classifiers = [
     "Typing :: Typed"
 ]
 license = "MIT"
+
+[tool.setuptools]
 license-files = [
     "LICENSE",
 ]
