@@ -9,7 +9,6 @@ authors = [
     { name="BetterBuiltFool", email="betterbuiltfool@gmail.com"}
 ]
 description = "A self-pruning, weak-referencing tree structure."
-license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.12.4"
 classifiers = [
@@ -18,4 +17,8 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Utilities",
     "Typing :: Typed"
+]
+license = "MIT"
+license-files = [
+    "LICENSE",
 ]
